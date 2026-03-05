@@ -1,3 +1,4 @@
 module com.piperinnshall.fluentguijava {
-    exports com.piperinnshall.fluentguijava.main;
+  requires java.desktop;
+  exports com.piperinnshall.fluentguijava.main;
 }
