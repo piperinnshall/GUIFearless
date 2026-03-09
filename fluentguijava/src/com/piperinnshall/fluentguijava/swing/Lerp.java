@@ -1,11 +1,11 @@
 package com.piperinnshall.fluentguijava.swing;
 
+import java.util.function.UnaryOperator;
+
 /**
  * Easing functions from https://easings.net/
  */
-interface Lerp {
-  float apply(float t);
-
+interface Lerp extends UnaryOperator<Float> {
   Lerp LINEAR = t -> t;
 
   // Polynomial
@@ -31,32 +31,22 @@ interface Lerp {
   Lerp EASE_IN_EXPO = t -> t == 0 ? 0 : (float) Math.pow(2, 10 * t - 10);
   Lerp EASE_OUT_EXPO = t -> t == 1 ? 1 : 1 - (float) Math.pow(2, -10 * t);
   Lerp EASE_IN_OUT_EXPO = t -> t == 0 ? 0
-      : t == 1 ? 1
-          : t < 0.5f
-              ? (float) Math.pow(2, 20 * t - 10) / 2
-              : (2 - (float) Math.pow(2, -20 * t + 10)) / 2;
-
+      : t == 1 ? 1 : t < 0.5f ? (float) Math.pow(2, 20 * t - 10) / 2 : (2 - (float) Math.pow(2, -20 * t + 10)) / 2;
   // Circ
   Lerp EASE_IN_CIRC = t -> 1 - (float) Math.sqrt(1 - t * t);
   Lerp EASE_OUT_CIRC = t -> (float) Math.sqrt(1 - (t - 1) * (t - 1));
-  Lerp EASE_IN_OUT_CIRC = t -> t < 0.5f
-      ? (1 - (float) Math.sqrt(1 - 4 * t * t)) / 2
+  Lerp EASE_IN_OUT_CIRC = t -> t < 0.5f ? (1 - (float) Math.sqrt(1 - 4 * t * t)) / 2
       : ((float) Math.sqrt(1 - (float) Math.pow(-2 * t + 2, 2)) + 1) / 2;
-
   // Back
   Lerp EASE_IN_BACK = t -> 2.70158f * t * t * t - 1.70158f * t * t;
   Lerp EASE_OUT_BACK = t -> 1 + 2.70158f * (float) Math.pow(t - 1, 3) + 1.70158f * (float) Math.pow(t - 1, 2);
-  Lerp EASE_IN_OUT_BACK = t -> t < 0.5f
-      ? ((float) Math.pow(2 * t, 2) * ((2.5949095f + 1) * 2 * t - 2.5949095f)) / 2
+  Lerp EASE_IN_OUT_BACK = t -> t < 0.5f ? ((float) Math.pow(2 * t, 2) * ((2.5949095f + 1) * 2 * t - 2.5949095f)) / 2
       : ((float) Math.pow(2 * t - 2, 2) * ((2.5949095f + 1) * (2 * t - 2) + 2.5949095f) + 2) / 2;
-
   // Elastic
   Lerp EASE_IN_ELASTIC = t -> t == 0 ? 0
-      : t == 1 ? 1
-          : -(float) Math.pow(2, 10 * t - 10) * (float) Math.sin((t * 10 - 10.75) * (2 * Math.PI) / 3);
+      : t == 1 ? 1 : -(float) Math.pow(2, 10 * t - 10) * (float) Math.sin((t * 10 - 10.75) * (2 * Math.PI) / 3);
   Lerp EASE_OUT_ELASTIC = t -> t == 0 ? 0
-      : t == 1 ? 1
-          : (float) Math.pow(2, -10 * t) * (float) Math.sin((t * 10 - 0.75) * (2 * Math.PI) / 3) + 1;
+      : t == 1 ? 1 : (float) Math.pow(2, -10 * t) * (float) Math.sin((t * 10 - 0.75) * (2 * Math.PI) / 3) + 1;
 
   // Bounce
   Lerp EASE_OUT_BOUNCE = t -> {
@@ -74,7 +64,6 @@ interface Lerp {
     }
   };
   Lerp EASE_IN_BOUNCE = t -> 1 - EASE_OUT_BOUNCE.apply(1 - t);
-  Lerp EASE_IN_OUT_BOUNCE = t -> t < 0.5f
-      ? (1 - EASE_OUT_BOUNCE.apply(1 - 2 * t)) / 2
+  Lerp EASE_IN_OUT_BOUNCE = t -> t < 0.5f ? (1 - EASE_OUT_BOUNCE.apply(1 - 2 * t)) / 2
       : (1 + EASE_OUT_BOUNCE.apply(2 * t - 1)) / 2;
 }

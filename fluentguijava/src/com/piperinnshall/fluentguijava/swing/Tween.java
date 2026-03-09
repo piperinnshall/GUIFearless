@@ -1,5 +1,7 @@
 package com.piperinnshall.fluentguijava.swing;
 
+import java.util.function.UnaryOperator;
+
 record Point(int x, int y) {
   Point add(Point point) {
     return new Point(x + point.x, y + point.y);
@@ -18,11 +20,12 @@ class Tween {
   private final Point start;
   private final Point end;
   private final float duration;
-  private final Lerp lerp;
+  private final UnaryOperator<Float> lerp;
   private float elapsed;
   private boolean active;
+  private boolean reversed;
 
-  Tween(Point start, Point end, float duration, Lerp lerp) {
+  Tween(Point start, Point end, float duration, UnaryOperator<Float> lerp) {
     this.start = start;
     this.end = end;
     this.duration = duration;
@@ -31,17 +34,32 @@ class Tween {
     this.active = false;
   }
 
-  void trigger() {
+  void reset() {
     elapsed = 0;
+  }
+
+  void trigger() {
     active = true;
+    reversed = false;
+  }
+
+  void reverse() {
+    active = true;
+    reversed = true;
   }
 
   void update(float dt) {
     if (!active)
       return;
-    elapsed = Math.min(elapsed + dt, duration);
-    if (elapsed >= duration)
-      active = false;
+    if (reversed) {
+      elapsed = Math.max(elapsed - dt, 0);
+      if (elapsed <= 0)
+        active = false;
+    } else {
+      elapsed = Math.min(elapsed + dt, duration);
+      if (elapsed >= duration)
+        active = false;
+    }
   }
 
   Point point() {
