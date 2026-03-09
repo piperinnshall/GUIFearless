@@ -24,6 +24,7 @@ class Tween {
   private float elapsed;
   private boolean active;
   private boolean reversed;
+  private boolean repaint;
 
   Tween(Point start, Point end, float duration, UnaryOperator<Float> lerp) {
     this.start = start;
@@ -32,6 +33,11 @@ class Tween {
     this.lerp = lerp;
     this.elapsed = 0;
     this.active = false;
+    this.repaint = false;
+  }
+
+  boolean repaint() {
+    return repaint;
   }
 
   void reset() {
@@ -41,24 +47,33 @@ class Tween {
   void trigger() {
     active = true;
     reversed = false;
+    repaint = true;
   }
 
   void reverse() {
     active = true;
     reversed = true;
+    repaint = true;
   }
 
   void update(float dt) {
-    if (!active)
+    if (!active) {
+      repaint = false;
       return;
+    }
+    repaint = true;
     if (reversed) {
       elapsed = Math.max(elapsed - dt, 0);
-      if (elapsed <= 0)
+      if (elapsed <= 0) {
+        elapsed = 0;
         active = false;
+      }
     } else {
       elapsed = Math.min(elapsed + dt, duration);
-      if (elapsed >= duration)
+      if (elapsed >= duration) {
+        elapsed = duration;
         active = false;
+      }
     }
   }
 

@@ -10,36 +10,41 @@ import java.awt.event.KeyListener;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-
 import javax.swing.JPanel;
 
 class TweenShowcase extends JPanel implements KeyListener {
+  private static int WIDTH = 800;
+  private static int HEIGHT = 800;
+  private static final Dimension SIZE = new Dimension(WIDTH, HEIGHT);
+  private static final BasicStroke STROKE = new BasicStroke(3);
+  private static final Color BACKGROUND = new Color(0xF6F0EB);
+  private static final Color BORDER = new Color(0xE8D5B7);
+  private static final List<Color> COLORS = List.of(new Color(0xDBCDF0), new Color(0xF2C6DE), new Color(0xF7D9C4));
+
   Model model;
 
-  BasicStroke stroke = new BasicStroke(3);
-  Color background = new Color(0xF6F0EB);
-  Color border = new Color(0xE8D5B7);
-  List<Color> colors = List.of(new Color(0xDBCDF0), new Color(0xF2C6DE), new Color(0xF7D9C4));
-
   TweenShowcase() {
-    setPreferredSize(new Dimension(1000, 1000));
-    setBackground(background);
-    model = new Model(this::repaint);
+    setPreferredSize(SIZE);
+    setBackground(BACKGROUND);
+    model = new Model(this::repaint, WIDTH, HEIGHT);
   }
 
   @Override
   public void paintComponent(Graphics g) {
     var g2d = (Graphics2D) g;
     super.paintComponent(g2d);
+    g2d.setStroke(STROKE);
+    g2d.setColor(BORDER);
 
-    g2d.setStroke(stroke);
-    g2d.setColor(border);
-    g2d.drawRoundRect(48, 48, 904, 904, 30, 30);
+    int pad = (int) (WIDTH * 0.048);
+    int innerW = WIDTH - pad * 2;
+    int innerH = HEIGHT - pad * 2;
+    g2d.drawRoundRect(pad, pad, innerW, innerH, 30, 30);
 
-    var radius = 200;
+    int radius = (int) (WIDTH * 0.2);
     var points = model.points();
     for (int i = 0; i < points.size(); i++) {
-      g2d.setColor(colors.get(i));
+      g2d.setColor(COLORS.get(i));
       g2d.fillOval(points.get(i).x() - radius / 2, points.get(i).y() - radius / 2, radius, radius);
     }
   }
@@ -50,17 +55,17 @@ class TweenShowcase extends JPanel implements KeyListener {
 }
 
 record Model(Runnable task, Tween... tweens) {
-  Model(Runnable task) {
+  Model(Runnable task, int w, int h) {
     this(task,
-        new Tween(new Point(225, 850), new Point(225, 150), 2.0f, Lerp.EASE_OUT_ELASTIC),
-        new Tween(new Point(500, 850), new Point(500, 150), 2.0f, Lerp.EASE_IN_BOUNCE),
-        new Tween(new Point(775, 850), new Point(775, 150), 2.0f, Lerp.EASE_OUT_BACK));
+        new Tween(new Point((int)(w * 0.225), (int)(h * 0.85)), new Point((int)(w * 0.225), (int)(h * 0.15)), 2.0f, Lerp.EASE_OUT_ELASTIC),
+        new Tween(new Point((int)(w * 0.500), (int)(h * 0.85)), new Point((int)(w * 0.500), (int)(h * 0.15)), 2.0f, Lerp.EASE_IN_BOUNCE),
+        new Tween(new Point((int)(w * 0.775), (int)(h * 0.85)), new Point((int)(w * 0.775), (int)(h * 0.15)), 2.0f, Lerp.EASE_OUT_BACK));
   }
 
   Model {
     Timer.of(60)
         .raw(dt -> tweenStream().forEach(t -> t.update(dt)))
-        .edt(task)
+        .edtPredicate(_ -> tweenStream().anyMatch(Tween::repaint), task)
         .start();
   }
 
