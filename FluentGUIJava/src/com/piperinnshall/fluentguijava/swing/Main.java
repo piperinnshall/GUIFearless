@@ -19,11 +19,12 @@ class Main {
 class Frame extends JFrame {
   Frame() {
     var root = new Panel();
-    setTitle("Animation Player");
-    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    root.setPreferredSize(new Dimension(1000, 1000));
     add(root);
     addKeyListener(root);
-    setPreferredSize(new Dimension(1000, 1000));
+
+    setTitle("Animation Player");
+    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     pack();
     setLocationRelativeTo(null);
     setResizable(false);
@@ -36,18 +37,23 @@ class Frame extends JFrame {
 class Panel extends JPanel implements KeyListener {
   Tween tween;
   KeyModel keyModel;
+
   Panel() {
-    var timer = new Timer(60, this::repaint);
-    tween = new Tween(new Point(0, 0));
+    tween = new Tween(new Point(500, 100), new Point(500, 900), 2.0f, Lerp.EASE_OUT_BOUNCE);
+
     keyModel = new KeyModel(tween);
-    timer.start();
+    Timer.of(60)
+        .raw(tween::update)
+        .edt(this::repaint)
+        .start();
   }
 
   @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
-    g.setColor(Color.red);
-    g.fillOval(tween.point().x(), tween.point().y(), 200, 200);
+    g.setColor(new Color(100, 200, 120));
+    var radius = 200;
+    g.fillOval(tween.point().x() - radius / 2, tween.point().y() - radius / 2, radius, radius);
   }
 
   public void keyTyped(KeyEvent e) {}
@@ -58,21 +64,7 @@ class Panel extends JPanel implements KeyListener {
 record KeyModel(Tween t) {
   void press(KeyEvent e) {
     switch (e.getKeyCode()) {
-      case KeyEvent.VK_SPACE -> { t.add(new Point(100, 100)); System.out.println("Hi"); }
+      case KeyEvent.VK_SPACE -> t.trigger();
     }
   }
-}
-
-record Point(int x, int y) {
-  Point add(Point point) {
-    return new Point(x + point.x, y + point.y);
-  }
-}
-
-class Tween {
-  Point point;
-  Point point() { return point; }
-  void point(Point point) { this.point = point; }
-  void add(Point point) { this.point = this.point.add(point); }
-  Tween(Point point) { point(point); }
 }

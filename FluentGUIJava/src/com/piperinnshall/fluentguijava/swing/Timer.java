@@ -11,8 +11,10 @@ class Timer {
   }
 }
 
+interface Updatable { void update(float dt); }
+
 interface TimerBuilder {
-  TimerBuilder raw(Runnable task);
+  TimerBuilder raw(Updatable task);
   TimerBuilder edt(Runnable task);
   void start();
   void stop();
@@ -20,7 +22,7 @@ interface TimerBuilder {
 
 class CTimerBuilder implements TimerBuilder {
   private final int fps;
-  private final List<Runnable> rawTasks = new ArrayList<>();
+  private final List<Updatable> rawTasks = new ArrayList<>();
   private final List<Runnable> edtTasks = new ArrayList<>();
   private Thread t;
 
@@ -28,7 +30,7 @@ class CTimerBuilder implements TimerBuilder {
     this.fps = fps;
   }
 
-  public TimerBuilder raw(Runnable task) {
+  public TimerBuilder raw(Updatable task) {
     rawTasks.add(task);
     return this;
   }
@@ -38,12 +40,16 @@ class CTimerBuilder implements TimerBuilder {
     return this;
   }
 
-  public void start() {
+   public void start() {
     t = new Thread(() -> {
       long next = System.nanoTime();
+      long last = next;
       for (;;) {
         next += 1_000_000_000L / fps;
-        rawTasks.forEach(Runnable::run);
+        long now = System.nanoTime();
+        float dt = (now - last) / 1_000_000_000f;
+        last = now;
+        rawTasks.forEach(t -> t.update(dt));
         SwingUtilities.invokeLater(() -> edtTasks.forEach(Runnable::run));
         long delay = next - System.nanoTime();
         if (delay > 0)
@@ -54,6 +60,7 @@ class CTimerBuilder implements TimerBuilder {
           }
       }
     });
+    t.setDaemon(true);
     t.start();
   }
 
