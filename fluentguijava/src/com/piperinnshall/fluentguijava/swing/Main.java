@@ -20,7 +20,7 @@ class Main {
   public static void main(String[] args) {
     int width = 800, height = 800;
     var root = new Panel(width, height);
-    var model = new CardModel(root::repaint, width, height);
+    var model = new RectModel(root::repaint, width, height);
     root.model = model;
     SwingUtilities.invokeLater(() -> new Frame(root));
   }

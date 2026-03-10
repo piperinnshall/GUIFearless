@@ -7,10 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-record TweenModel(Runnable task, int width, int height, Tween... tweens) implements Model {
+record BallModel(Runnable task, int width, int height, Tween... tweens) implements Model {
   private static final List<Color> COLORS = List.of(new Color(0xDBCDF0), new Color(0xF2C6DE), new Color(0xF7D9C4));
 
-  TweenModel(Runnable task, int width, int height) {
+  BallModel(Runnable task, int width, int height) {
     this(task, width, height,
         new Tween(new Point((int) (width * 0.225), (int) (height * 0.85)),
             new Point((int) (width * 0.225), (int) (height * 0.15)), 2.0f, Lerp.EASE_OUT_ELASTIC),
@@ -20,24 +20,15 @@ record TweenModel(Runnable task, int width, int height, Tween... tweens) impleme
             new Point((int) (width * 0.775), (int) (height * 0.15)), 2.0f, Lerp.EASE_OUT_BACK));
   }
 
-  TweenModel {
+  BallModel {
     Timer.of(60)
         .raw(dt -> tweenStream().forEach(t -> t.update(dt)))
         .edtPredicate(_ -> tweenStream().anyMatch(Tween::repaint), task)
         .start();
   }
 
-
-  @Override
-  public void keyPressed(int keyCode) {
-    if (keyCode == KeyEvent.VK_SPACE)
-      tweenStream().forEach(Tween::trigger);
-  }
-
-  @Override
-  public void keyReleased(int keyCode) {
-    if (keyCode == KeyEvent.VK_SPACE)
-      tweenStream().forEach(Tween::reverse);
+  private Stream<Tween> tweenStream() {
+    return Arrays.stream(tweens);
   }
 
   @Override
@@ -59,7 +50,15 @@ record TweenModel(Runnable task, int width, int height, Tween... tweens) impleme
         });
   }
 
-  private Stream<Tween> tweenStream() {
-    return Arrays.stream(tweens);
+  @Override
+  public void keyPressed(int keyCode) {
+    if (keyCode == KeyEvent.VK_SPACE)
+      tweenStream().forEach(Tween::trigger);
+  }
+
+  @Override
+  public void keyReleased(int keyCode) {
+    if (keyCode == KeyEvent.VK_SPACE)
+      tweenStream().forEach(Tween::reverse);
   }
 }
