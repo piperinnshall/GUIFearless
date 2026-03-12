@@ -94,6 +94,7 @@ class CGuiBuilder implements GuiBuilder {
     o.f.setPreferredSize(new Dimension(300, 300));
     o.f.pack();
     o.f.setVisible(true);
+    o.f.setResizable(false);
     submit = o.exe::submit;
   }
 

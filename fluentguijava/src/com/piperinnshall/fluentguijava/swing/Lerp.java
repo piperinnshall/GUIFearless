@@ -6,6 +6,7 @@ import java.util.function.UnaryOperator;
  * Easing functions from https://easings.net/
  */
 interface Lerp extends UnaryOperator<Float> {
+
   Lerp LINEAR = t -> t;
 
   // Polynomial
@@ -66,4 +67,5 @@ interface Lerp extends UnaryOperator<Float> {
   Lerp EASE_IN_BOUNCE = t -> 1 - EASE_OUT_BOUNCE.apply(1 - t);
   Lerp EASE_IN_OUT_BOUNCE = t -> t < 0.5f ? (1 - EASE_OUT_BOUNCE.apply(1 - 2 * t)) / 2
       : (1 + EASE_OUT_BOUNCE.apply(2 * t - 1)) / 2;
+
 }

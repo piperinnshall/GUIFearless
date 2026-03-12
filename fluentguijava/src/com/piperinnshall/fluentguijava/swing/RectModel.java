@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.util.List;
 
 class RectModel implements Model {
+
   private final int width;
   private final int height;
   private final int borderX;
@@ -29,17 +30,17 @@ class RectModel implements Model {
   RectModel(Runnable task, int width, int height) {
     this.width = width;
     this.height = height;
-    this.borderX = (int)(width * 0.1);
-    this.borderY = (int)(height * 0.1);
-    this.borderWidth = (int)(width * 0.8);
-    this.borderHeight = (int)(height * 0.8);
+    this.borderX = (int) (width * 0.1);
+    this.borderY = (int) (height * 0.1);
+    this.borderWidth = (int) (width * 0.8);
+    this.borderHeight = (int) (height * 0.8);
     this.rectX = width / 2;
     this.rectY = height / 2;
     this.rectSize = new Point(60, 60);
-    this.clickTween = new Tween(rectSize, rectSize.add(new Point(30, 30)), 0.35f, Lerp.EASE_OUT_BOUNCE, Lerp.EASE_IN_CIRC);
+    this.clickTween = new Tween(rectSize, rectSize.add(new Point(30, 30)), 0.35f, Lerp.EASE_OUT_BOUNCE,
+        Lerp.EASE_IN_CIRC);
     this.snapTween = new Tween(new Point(rectX, rectY), new Point(width / 2, height / 2), 0.4f, Lerp.EASE_OUT_ELASTIC);
     this.borderSnapTween = new Tween(new Point(rectX, rectY), new Point(rectX, rectY), 0.4f, Lerp.EASE_OUT_BACK);
-
     Timer.of(60)
         .raw(clickTween::update)
         .raw(dt -> {
@@ -65,7 +66,7 @@ class RectModel implements Model {
   }
 
   private boolean overCenter(int x, int y) {
-    Point p = clickTween.point();
+    Point p = rectSize;
     int dot = 256 / 2;
     return x - p.x() <= width / 2 + dot && x + p.x() >= width / 2 - dot
         && y - p.y() <= height / 2 + dot && y + p.y() >= height / 2 - dot;
@@ -147,12 +148,16 @@ class RectModel implements Model {
   @Override
   public void mouseMoved(int mx, int my) {
     boolean over = hitTest(mx, my);
-    if (over && !hovered)      { hovered = true; }
-    else if (!over && hovered) { hovered = false; }
+    if (over && !hovered) {
+      hovered = true;
+    } else if (!over && hovered) {
+      hovered = false;
+    }
   }
 
   @Override
   public void mouseExited() {
     hovered = false;
   }
+
 }

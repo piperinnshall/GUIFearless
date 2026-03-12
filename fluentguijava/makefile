@@ -1,5 +1,5 @@
 MODULE = com.piperinnshall.fluentguijava
-MAIN   = com.piperinnshall.fluentguijava.swing.Main
+MAIN   = com.piperinnshall.fluentguijava.main.Main
 SRC    = $(shell find src -name '*.java')
 
 run: compile
