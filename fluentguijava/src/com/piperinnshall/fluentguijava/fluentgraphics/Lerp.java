@@ -1,12 +1,17 @@
 package com.piperinnshall.fluentguijava.fluentgraphics;
 
+import java.awt.Dimension;
+import java.awt.Point;
+
 /* 
  * Library-only point 
  */
-record Point(int x, int y) {
-  static Point round(Vec2 v) {
-    return new Point(Math.round(v.x()), Math.round(v.y()));
+record Point2(int x, int y) {
+  static Point2 round(Vec2 v) {
+    return new Point2(Math.round(v.x()), Math.round(v.y()));
   }
+  Dimension awtDimension() { return new Dimension(x, y); }
+  Point awtPoint() { return new Point(x, y); }
 }
 
 record Vec2(float x, float y) {

@@ -1,20 +1,19 @@
 package com.piperinnshall.fluentguijava.fluentgraphics;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import javax.swing.AbstractAction;
+import javax.swing.*;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -49,8 +48,12 @@ class Slot<T> {
 
 interface FrameBuilder<R> {
   FrameBuilder<R> resolve(R r);
+  FrameBuilder<R> size(Vec2 dimension);
   FrameBuilder<R> location(Vec2 location);
   FrameBuilder<R> resizable();
+  FrameBuilder<R> undecorated();
+  FrameBuilder<R> maximized();
+  FrameBuilder<R> opacity(float opacity);
   FrameBuilder<R> panel(PanelScope scope);
 }
 
@@ -88,40 +91,51 @@ interface GraphicsCtx {
 
 class CFrameBuilder<R> implements FrameBuilder<R> {
   R resolve;
-  Point location;
+  Point2 dimension;
+  Point2 location;
   boolean resizable = false;
+  boolean undecorated = false;
+  boolean maximized = false;
+  float opacity;
   CPanelBuilder pb = new CPanelBuilder();
   public void start(String title, CompletableFuture<RuntimeException> done) {
     var panel = new FPanel(pb.paintable);
     var frame = new FFrame(title, done);
-    panel.setPreferredSize(new Dimension(pb.dimension.x(), pb.dimension.y()));
+    panel.setPreferredSize(pb.dimension.awtDimension());
     panel.setBackground(pb.col);
     frame.add(panel);
+    frame.setUndecorated(undecorated);
     frame.setResizable(resizable);
+    if (maximized) frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+    frame.setOpacity(opacity);
     frame.setFocusable(true);
     frame.pack();
     frame.setVisible(true);
-    if (location == null) frame.setLocationRelativeTo(null);
-    else frame.setLocation(location.x(), location.y());
+    if (dimension != null) frame.setSize(dimension.awtDimension());
+    if (location != null) frame.setLocation(location.awtPoint()); else frame.setLocationRelativeTo(null); 
     if (pb.keyScope != null) pb.keyScope.run(new CKeyBuilder(panel));
     if (pb.mouseScope != null) pb.mouseScope.run(new CMouseBuilder(panel));
     new Timer(1000 / pb.fps, _ -> panel.repaint()).start();
   }
   public R resolve() { return resolve; }  // Doesn't actually make sense, needs to be an 'event handler'.
   @Override public FrameBuilder<R> resolve(R r) { this.resolve = r; return this; }
-  @Override public FrameBuilder<R> location(Vec2 location) { this.location = Point.round(location); return this; }
+  @Override public FrameBuilder<R> size(Vec2 dimension) { this.dimension = Point2.round(dimension); return this; }
+  @Override public FrameBuilder<R> location(Vec2 location) { this.location = Point2.round(location); return this; }
   @Override public FrameBuilder<R> resizable() { this.resizable = true; return this; }
+  @Override public FrameBuilder<R> undecorated() { this.undecorated = true; return this; }
+  @Override public FrameBuilder<R> maximized() { this.maximized = true; return this; }
+  @Override public FrameBuilder<R> opacity(float opacity) { this.opacity = opacity; return this;}
   @Override public FrameBuilder<R> panel(PanelScope scope) { scope.run(pb); return this; }
 }
 
 class CPanelBuilder implements PanelBuilder {
-  Point dimension = new Point(100, 100);
+  Point2 dimension = new Point2(100, 100);
   int fps = 60;
   Color col;
   Paintable paintable;
   KeyScope keyScope;
   MouseScope mouseScope;
-  @Override public PanelBuilder size(Vec2 dimension) { this.dimension = Point.round(dimension); return this; }
+  @Override public PanelBuilder size(Vec2 dimension) { this.dimension = Point2.round(dimension); return this; }
   @Override public PanelBuilder fps(int fps) { this.fps = fps; return this; }
   @Override public PanelBuilder background(int rgb) { this.col = new Color(rgb); return this; }
   @Override public PanelBuilder background(int r, int g, int b) { this.col = new Color(r, g, b); return this; }
@@ -136,7 +150,7 @@ class CKeyBuilder implements KeyBuilder {
   private KeyBuilder bind(String stroke, Runnable action) {
     panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(stroke), stroke);
     panel.getActionMap().put(stroke, new AbstractAction() {
-      public void actionPerformed(ActionEvent e) { action.run(); }});
+      public void actionPerformed(ActionEvent e) { action.run(); }}); 
     return this;
   }
   @Override public KeyBuilder pressed(String key, Runnable action) { return bind(key, action); }
@@ -174,12 +188,12 @@ class CMouseBuilder implements MouseBuilder {
 
 record CGraphicsCtx(Graphics2D g2d) implements GraphicsCtx {
   @Override public GraphicsCtx rect(Vec2 pos, Vec2 dim) {
-    Point p = Point.round(pos), d = Point.round(dim);
+    Point2 p = Point2.round(pos), d = Point2.round(dim);
     g2d.fillRect(p.x(), p.y(), d.x(), d.y());
     return this;
   }
   @Override public GraphicsCtx oval(Vec2 pos, Vec2 dim) {
-    Point p = Point.round(pos), d = Point.round(dim);
+    Point2 p = Point2.round(pos), d = Point2.round(dim);
     g2d.fillOval(p.x(), p.y(), d.x(), d.y());
     return this;
   }
