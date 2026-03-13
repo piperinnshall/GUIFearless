@@ -19,7 +19,7 @@ public record SerialQueue(BlockingQueue<Runnable> q, Thread t) {
 
   private static Thread makeThread(BlockingQueue<Runnable> q, Consumer<RuntimeException> onError) {
     var t = new Thread(() -> runLoop(q), "GuiToMain");
-    t.setUncaughtExceptionHandler((_, e) -> {
+      t.setUncaughtExceptionHandler((_, e) -> {
       if (e instanceof Poison)
         return;
       if (e instanceof RuntimeException re) {

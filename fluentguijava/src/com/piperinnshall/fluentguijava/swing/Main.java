@@ -83,4 +83,3 @@ interface Model {
   default void mouseMoved(int mx, int my) {}
   default void mouseDragged(int mx, int my) {}
 }
-
