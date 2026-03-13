@@ -1,12 +1,17 @@
 package com.piperinnshall.fluentguijava.fluentgraphics;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.concurrent.CompletableFuture;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.concurrent.CompletableFuture;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 class GraphicsCap {
   void runGraphics(String title, GraphicsScope graphics) {
@@ -56,6 +61,7 @@ class CGraphicsBuilder implements GraphicsBuilder {
     var frame = new FFrame(title, done);
 
     panel.setPreferredSize(dim);
+    panel.setBackground(col);
 
     frame.add(panel);
     frame.setResizable(false);
@@ -63,6 +69,8 @@ class CGraphicsBuilder implements GraphicsBuilder {
     frame.pack();
     frame.setVisible(true);
     frame.setLocationRelativeTo(null);
+
+    new Timer(1000 / 60,_ -> panel.repaint()).start();
   }
 
   @Override public GraphicsBuilder fps(int fps) {
