@@ -10,14 +10,23 @@ record Point(int x, int y) {
 }
 
 record Vec2(float x, float y) {
+  Vec2(float scalar) {
+    this(scalar, scalar);
+  }
   Vec2 add(Vec2 point) {
     return new Vec2(x + point.x, y + point.y);
   }
   Vec2 sub(Vec2 point) {
     return new Vec2(x - point.x, y - point.y);
   }
+  Vec2 sub(float scalar) {
+    return new Vec2(x - scalar, y - scalar);
+  }
   Vec2 mul(float scalar) {
     return new Vec2(x * scalar, y * scalar);
+  }
+  Vec2 div(float scalar) {
+    return new Vec2(x / scalar, y / scalar);
   }
 }
 

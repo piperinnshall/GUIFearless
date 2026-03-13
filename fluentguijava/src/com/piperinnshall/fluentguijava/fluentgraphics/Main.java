@@ -1,14 +1,26 @@
 package com.piperinnshall.fluentguijava.fluentgraphics;
 
-class Main {
-  public static void main(String[] args) {
-    var bounce = new Lerp(new Vec2(150, 50), new Vec2(150, 300), 1f, Easing.EASE_IN_OUT_BOUNCE);
+record BallModel(int width, int height, Vec2 dim) {}
 
-    new GraphicsCap().runGraphics("Sphere", g -> g
-        .size(400, 400)
-        .paintable((ctx, nanos) -> {
-          var pos = bounce.at(nanos);
-          ctx.oval(pos, new Vec2(100, 100));
-        }));
+record BallView(BallModel m, Slot<Vec2> pos) {
+  BallView {
+    pos.fill(new Vec2(m.width() / 2, m.height() / 2));
+  }
+  String build() {
+    return new GraphicsCap().runGraphics("Ball", g -> g
+        .size(m.width(), m.height())
+        .background(30, 30, 30)
+        .paintable((ctx, _) -> ctx
+            .color(255, 100, 100)
+            .oval(pos.get().sub(m.dim().x() / 2), m.dim()))
+        .onMouse(ms -> ms.pressed(pos::fill))
+        .resolve("GUI has finished!"));
+  }
+}
+
+public class Main {
+  public static void main(String[] a) {
+    var model = new BallModel(800, 800, new Vec2(300));
+    System.out.println(new BallView(model, Slot.of()).build());
   }
 }

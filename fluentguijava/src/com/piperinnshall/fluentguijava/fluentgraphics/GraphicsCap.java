@@ -4,122 +4,180 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 class GraphicsCap {
-  void runGraphics(String title, GraphicsScope graphics) {
+  <R> R runGraphics(String title, GraphicsScope<R> graphics) {
     var done = new CompletableFuture<RuntimeException>();
-    var builder = new CGraphicsBuilder();
+    var builder = new CGraphicsBuilder<R>();
     graphics.run(builder);
     SwingUtilities.invokeLater(() -> builder.start(title, done));
     var tr = done.join();
-    if (tr != null) {
-      throw tr;
-    }
+    if (tr == null) { return builder.resolve(); }
+    throw tr;
   }
 }
 
-@FunctionalInterface
-interface GraphicsScope {
-  void run(GraphicsBuilder g);
+class Slot<T> {
+  private Optional<T> inner = Optional.empty();
+  static <T> Slot<T> of() { return new Slot<>(); }
+  void fill(T t) { inner = Optional.of(t); }
+  T get() { return inner.get(); }
 }
 
-@FunctionalInterface
-interface Paintable {
-  void paint(GraphicsCtx graphicsCtx, long elapsedNanos);
+@FunctionalInterface interface GraphicsScope<R> { void run(GraphicsBuilder<R> g); }
+@FunctionalInterface interface KeyScope { void run(KeyBuilder k); }
+@FunctionalInterface interface MouseScope { void run(MouseBuilder m); }
+@FunctionalInterface interface Paintable { void paint(GraphicsCtx graphicsCtx, long elapsedNanos); }
+
+interface GraphicsBuilder<R> {
+  GraphicsBuilder<R> resolve(R r);
+  GraphicsBuilder<R> fps(int fps);
+  GraphicsBuilder<R> background(int rgb);
+  GraphicsBuilder<R> background(int r, int g, int b);
+  GraphicsBuilder<R> size(int width, int height);
+  GraphicsBuilder<R> paintable(Paintable p);
+  GraphicsBuilder<R> onKey(KeyScope scope);
+  GraphicsBuilder<R> onMouse(MouseScope scope);
 }
 
+interface KeyBuilder {
+  KeyBuilder pressed(String key, Runnable action);
+  KeyBuilder released(String key, Runnable action);
+}
 
-interface GraphicsBuilder {
-  GraphicsBuilder fps(int fps);
-  GraphicsBuilder background(int rgb);
-  GraphicsBuilder background(int r, int g, int b);
-  GraphicsBuilder size(int width, int height);
-  GraphicsBuilder paintable(Paintable p);
+interface MouseBuilder {
+  MouseBuilder clicked(Consumer<Vec2> action);
+  MouseBuilder pressed(Consumer<Vec2> action);
+  MouseBuilder released(Consumer<Vec2> action);
+  MouseBuilder moved(Consumer<Vec2> action);
+  MouseBuilder dragged(Consumer<Vec2> action);
+  MouseBuilder entered(Runnable action);
+  MouseBuilder exited(Runnable action);
 }
 
 interface GraphicsCtx {
   GraphicsCtx rect(Vec2 position, Vec2 dimension);
   GraphicsCtx oval(Vec2 position, Vec2 dimension);
+  GraphicsCtx color(int r, int g, int b);
+  GraphicsCtx color(int rgb);
 }
 
-class CGraphicsBuilder implements GraphicsBuilder {
+class CGraphicsBuilder<R> implements GraphicsBuilder<R> {
+  R res;
   int fps = 60;
   Dimension dim = new Dimension(100, 100);
   Color col;
   Paintable paintable;
+  KeyScope keyScope;
+  MouseScope mouseScope;
+
+  public R resolve() { return res; }
 
   public void start(String title, CompletableFuture<RuntimeException> done) {
     var panel = new FPanel(paintable);
     var frame = new FFrame(title, done);
-
     panel.setPreferredSize(dim);
     panel.setBackground(col);
-
     frame.add(panel);
     frame.setResizable(false);
     frame.setFocusable(true);
     frame.pack();
     frame.setVisible(true);
     frame.setLocationRelativeTo(null);
-
-    new Timer(1000 / 60,_ -> panel.repaint()).start();
+    if (keyScope != null) keyScope.run(new CKeyBuilder(panel));
+    if (mouseScope != null) mouseScope.run(new CMouseBuilder(panel));
+    new Timer(1000 / fps, _ -> panel.repaint()).start();
   }
 
-  @Override public GraphicsBuilder fps(int fps) {
-    this.fps = fps;
-    return this;
-  }
-  @Override public GraphicsBuilder background(int rgb) {
-    this.col = new Color(rgb);
-    return this;
-  }
-  @Override public GraphicsBuilder background(int r, int g, int b) {
-    this.col = new Color(r, g, b);
-    return this;
-  }
-  @Override public GraphicsBuilder size(int width, int height) {
-    this.dim = new Dimension(width, height);
-    return this;
-  }
-  @Override public GraphicsBuilder paintable(Paintable paintable) {
-    this.paintable = paintable;
-    return this;
-  }
-
+  @Override public GraphicsBuilder<R> resolve(R r) { this.res = r; return this; }
+  @Override public GraphicsBuilder<R> fps(int fps) { this.fps = fps; return this; }
+  @Override public GraphicsBuilder<R> background(int rgb) { this.col = new Color(rgb); return this; }
+  @Override public GraphicsBuilder<R> background(int r, int g, int b) { this.col = new Color(r, g, b); return this; }
+  @Override public GraphicsBuilder<R> size(int width, int height) { this.dim = new Dimension(width, height); return this; }
+  @Override public GraphicsBuilder<R> paintable(Paintable paintable) { this.paintable = paintable; return this; }
+  @Override public GraphicsBuilder<R> onKey(KeyScope keyScope) { this.keyScope = keyScope; return this; }
+  @Override public GraphicsBuilder<R> onMouse(MouseScope mouseScope) { this.mouseScope = mouseScope; return this; }
 }
 
-record CGraphicsCtx(Graphics2D g) implements GraphicsCtx {
-  @Override
-  public GraphicsCtx rect(Vec2 pos, Vec2 dim) {
-    Point p = Point.round(pos), d = Point.round(dim);
-    g.fillRect(p.x(), p.y(), d.x(), d.y());
+class CKeyBuilder implements KeyBuilder {
+  final JPanel panel;
+  CKeyBuilder(JPanel panel) { this.panel = panel; }
+  private KeyBuilder bind(String stroke, Runnable action) {
+    panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(stroke), stroke);
+    panel.getActionMap().put(stroke, new AbstractAction() {
+      public void actionPerformed(ActionEvent e) { action.run(); }});
     return this;
   }
-  @Override
-  public GraphicsCtx oval(Vec2 pos, Vec2 dim) {
-    Point p = Point.round(pos), d = Point.round(dim);
-    g.fillOval(p.x(), p.y(), d.x(), d.y());
-    return this;
+  @Override public KeyBuilder pressed(String key, Runnable action) { return bind(key, action); }
+  @Override public KeyBuilder released(String key, Runnable action) { return bind("released " + key, action); }
+}
+
+class CMouseBuilder implements MouseBuilder {
+  final JPanel panel;
+  CMouseBuilder(JPanel panel) { this.panel = panel; }
+  private static Vec2 pos(MouseEvent e) { return new Vec2(e.getX(), e.getY()); }
+  private MouseBuilder mouse(MouseAdapter a) { panel.addMouseListener(a); return this; }
+  private MouseBuilder motion(MouseMotionAdapter a) { panel.addMouseMotionListener(a); return this; }
+  @Override public MouseBuilder clicked(Consumer<Vec2> action) {
+    return mouse(new MouseAdapter() { public void mouseClicked(MouseEvent e) { action.accept(pos(e)); }});
+  }
+  @Override public MouseBuilder pressed(Consumer<Vec2> action) {
+    return mouse(new MouseAdapter() { public void mousePressed(MouseEvent e) { action.accept(pos(e)); }});
+  }
+  @Override public MouseBuilder released(Consumer<Vec2> action) {
+    return mouse(new MouseAdapter() { public void mouseReleased(MouseEvent e) { action.accept(pos(e)); }});
+  }
+  @Override public MouseBuilder moved(Consumer<Vec2> action) {
+    return motion(new MouseMotionAdapter() { public void mouseMoved(MouseEvent e) { action.accept(pos(e)); }});
+  }
+  @Override public MouseBuilder dragged(Consumer<Vec2> action) {
+    return motion(new MouseMotionAdapter() { public void mouseDragged(MouseEvent e) { action.accept(pos(e)); }});
+  }
+  @Override public MouseBuilder entered(Runnable action) {
+    return mouse(new MouseAdapter() { public void mouseEntered(MouseEvent e) { action.run(); }});
+  }
+  @Override public MouseBuilder exited(Runnable action) {
+    return mouse(new MouseAdapter() { public void mouseExited(MouseEvent e) { action.run(); }});
   }
 }
 
+record CGraphicsCtx(Graphics2D g2d) implements GraphicsCtx {
+  @Override public GraphicsCtx rect(Vec2 pos, Vec2 dim) {
+    Point p = Point.round(pos), d = Point.round(dim);
+    g2d.fillRect(p.x(), p.y(), d.x(), d.y());
+    return this;
+  }
+  @Override public GraphicsCtx oval(Vec2 pos, Vec2 dim) {
+    Point p = Point.round(pos), d = Point.round(dim);
+    g2d.fillOval(p.x(), p.y(), d.x(), d.y());
+    return this;
+  }
+  @Override public GraphicsCtx color(int r, int g, int b) { g2d.setColor(new Color(r, g, b)); return this; }
+  @Override public GraphicsCtx color(int rgb) { g2d.setColor(new Color(rgb)); return this; }
+}
 
 class FFrame extends JFrame {
   FFrame(String title, CompletableFuture<RuntimeException> done) {
     super(title);
     addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowClosed(WindowEvent e) {
-        done.complete(null);
-      }
+      @Override public void windowClosed(WindowEvent e) { done.complete(null); }
     });
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
   }
@@ -128,17 +186,10 @@ class FFrame extends JFrame {
 class FPanel extends JPanel {
   private final long startTime = System.nanoTime();
   private final Paintable paintable;
-
-  FPanel(Paintable paintable) {
-    this.paintable = paintable;
-  }
-
-  @Override
-  public void paintComponent(Graphics g) {
-    var g2d = (Graphics2D) g;
-    super.paintComponent(g2d);
-    if (paintable != null) {
-      paintable.paint(new CGraphicsCtx(g2d), System.nanoTime() - startTime);
-    }
+  FPanel(Paintable paintable) { this.paintable = paintable; }
+  @Override public void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    if (paintable == null) return;
+    paintable.paint(new CGraphicsCtx((Graphics2D) g), System.nanoTime() - startTime);
   }
 }
