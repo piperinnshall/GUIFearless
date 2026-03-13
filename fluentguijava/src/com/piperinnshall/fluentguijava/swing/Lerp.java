@@ -8,7 +8,6 @@ import java.util.function.UnaryOperator;
 interface Lerp extends UnaryOperator<Float> {
 
   Lerp LINEAR = t -> t;
-
   // Polynomial
   Lerp EASE_IN_QUAD = t -> t * t;
   Lerp EASE_OUT_QUAD = t -> t * (2 - t);
@@ -22,12 +21,10 @@ interface Lerp extends UnaryOperator<Float> {
   Lerp EASE_IN_QUINT = t -> t * t * t * t * t;
   Lerp EASE_OUT_QUINT = t -> 1 - (1 - t) * (1 - t) * (1 - t) * (1 - t) * (1 - t);
   Lerp EASE_IN_OUT_QUINT = t -> t < 0.5f ? 16 * t * t * t * t * t : 1 - (float) Math.pow(-2 * t + 2, 5) / 2;
-
   // Sine
   Lerp EASE_IN_SINE = t -> 1 - (float) Math.cos(t * Math.PI / 2);
   Lerp EASE_OUT_SINE = t -> (float) Math.sin(t * Math.PI / 2);
   Lerp EASE_IN_OUT_SINE = t -> -((float) Math.cos(Math.PI * t) - 1) / 2;
-
   // Expo
   Lerp EASE_IN_EXPO = t -> t == 0 ? 0 : (float) Math.pow(2, 10 * t - 10);
   Lerp EASE_OUT_EXPO = t -> t == 1 ? 1 : 1 - (float) Math.pow(2, -10 * t);
@@ -48,7 +45,6 @@ interface Lerp extends UnaryOperator<Float> {
       : t == 1 ? 1 : -(float) Math.pow(2, 10 * t - 10) * (float) Math.sin((t * 10 - 10.75) * (2 * Math.PI) / 3);
   Lerp EASE_OUT_ELASTIC = t -> t == 0 ? 0
       : t == 1 ? 1 : (float) Math.pow(2, -10 * t) * (float) Math.sin((t * 10 - 0.75) * (2 * Math.PI) / 3) + 1;
-
   // Bounce
   Lerp EASE_OUT_BOUNCE = t -> {
     if (t < 1 / 2.75f)
