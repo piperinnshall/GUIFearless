@@ -50,6 +50,8 @@ interface Ctx { long elapsed(); }
 interface MouseCtx extends Ctx { Vec2 pos(); }
 interface KeyCtx extends Ctx {}
 interface GraphicsCtx extends Ctx {
+  Vec2 screenSize();
+  Vec2 panelSize();
   GraphicsCtx rect(Vec2 position, Vec2 dimension);
   GraphicsCtx oval(Vec2 position, Vec2 dimension);
   GraphicsCtx color(int r, int g, int b);

@@ -14,18 +14,23 @@ record Point2(int x, int y) {
   Point awtPoint() { return new Point(x, y); }
 }
 
-public interface Vec {
-  Vec2 add(Vec2 point);
-  Vec2 sub(Vec2 point);
-  Vec2 sub(float scalar);
-  Vec2 div(float scalar);
-  float dot(Vec2 v);
-  default float lenSq() {
-    return dot(this);
-  }
+interface Vec<T extends Vec<T>> {
+  float x();
+  float y();
+  T add(T point);
+  T sub(T point);
+  T add(float scalar);
+  T sub(float scalar);
+  T div(float scalar);
+  T mul(float scalar);
+  float dot(Vec<T> v);
+
+  default T normalize() { return div(len()); }
+  default float len() { return (float) Math.sqrt(lenSq()); }
+  default float lenSq() { return dot(this); }
 }
 
-public record Vec2(float x, float y) implements Vec {
+record Vec2(float x, float y) implements Vec<Vec2> {
   Vec2(float scalar) {
     this(scalar, scalar);
   }
@@ -47,7 +52,7 @@ public record Vec2(float x, float y) implements Vec {
   public Vec2 div(float scalar) {
     return new Vec2(x / scalar, y / scalar);
   }
-  public float dot(Vec2 v) {
-    return x * v.x + y * v.y;
+  public float dot(Vec<Vec2> v) {
+    return x * v.x() + y * v.y();
   }
 }

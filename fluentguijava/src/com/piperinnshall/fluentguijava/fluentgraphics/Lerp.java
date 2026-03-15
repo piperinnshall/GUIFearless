@@ -19,8 +19,8 @@ public sealed interface Lerp permits Lerp.F, Lerp.V {
   static F of(float start, float end, float duration, Easing easing) {
     return new F(start, end, duration, easing);
   }
-  static V of(Vec2 start, Vec2 end, float duration, Easing easing) {
-    return new V(start, end, duration, easing);
+  static <T extends Vec<T>> V<T> of(T start, T end, float duration, Easing easing) {
+    return new V<>(start, end, duration, easing);
   }
   record F(float start, float end, float duration, Easing easing) implements Lerp {
     float at(long elapsedNanos) {
@@ -28,11 +28,10 @@ public sealed interface Lerp permits Lerp.F, Lerp.V {
       return start + (end - start) * easing.apply(t);
     }
   }
-  record V(Vec2 start, Vec2 end, float duration, Easing easing) implements Lerp {
-    Vec2 at(long elapsedNanos) {
+  record V<T extends Vec<T>>(T start, T end, float duration, Easing easing) implements Lerp {
+    T at(long elapsedNanos) {
       var t = Math.clamp(elapsedNanos / (duration * 1_000_000_000f), 0f, 1f);
       return start.add(end.sub(start).mul(easing.apply(t)));
     }
   }
 }
-
