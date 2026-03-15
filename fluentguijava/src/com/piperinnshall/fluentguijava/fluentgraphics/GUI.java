@@ -12,7 +12,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -47,15 +46,12 @@ interface Ctx {
   Vec2 screenSize();
   Vec2 panelSize();
 }
-interface MouseCtx extends Ctx {
-  Vec2 pos();
-}
-interface KeyCtx extends Ctx {
-  String key();
-}
+interface MouseCtx extends Ctx { Vec2 pos(); }
+interface KeyCtx extends Ctx { String key(); }
 interface GraphicsCtx extends Ctx {
   GraphicsCtx rect(Vec2 position, Vec2 dimension);
   GraphicsCtx oval(Vec2 position, Vec2 dimension);
+  GraphicsCtx line(Vec2 from, Vec2 to);
   GraphicsCtx color(int hex);
   GraphicsCtx color(Vec3 rgb);
 }
@@ -102,7 +98,7 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
   boolean resizable = false;
   boolean undecorated = false;
   boolean maximized = false;
-  float opacity;
+  float opacity = 1f;
   private final long startTime = System.nanoTime();
   List<CPanelBuilder> pbs = new ArrayList<>();
   public void start(String title, int fps, CompletableFuture<RuntimeException> done) {
@@ -222,6 +218,10 @@ record CGraphicsCtx(Graphics2D g2d, long elapsed, Vec2 screenSize, Vec2 panelSiz
     Point2 p = Point2.round(pos), d = Point2.round(dim);
     g2d.fillOval(p.x(), p.y(), d.x(), d.y()); return this;
   }
+  @Override public GraphicsCtx line(Vec2 from, Vec2 to) {
+    Point2 f = Point2.round(from), t = Point2.round(to);
+    g2d.drawLine(f.x(), f.y(), t.x(), t.y()); return this;
+  }
   @Override public GraphicsCtx color(Vec3 rgb) { g2d.setColor(Point3.round(rgb).awtColor()); return this; }
   @Override public GraphicsCtx color(int hex) { g2d.setColor(new Color(hex)); return this; }
 }
@@ -235,6 +235,7 @@ class CFrame extends JFrame {
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
   }
 }
+
 class CPanel extends JPanel {
   private long elapsed;
   private final Vec2 screenSize;

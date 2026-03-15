@@ -7,7 +7,6 @@ class LerpBallView {
   Vec3 colorFrom;
   long moveStart, hoverStart;
   boolean hovered;
-  static final Vec3 COLOR_HOVERED = new Vec3(80, 230, 180);
   LerpBallView(LerpBallModel m) {
     this.m = m;
     origin = destination = new Vec2(600, 400);
@@ -33,7 +32,7 @@ class LerpBallView {
       .at(ctx.elapsed() - hoverStart);
   }
   private Vec3 color(Ctx ctx) {
-    var to = hovered ? COLOR_HOVERED : rainbow(ctx);
+    var to = hovered ? new Vec3(80, 230, 180) : rainbow(ctx);
     return Lerp.of(colorFrom, to, 5f, Easing.EASE_OUT_CUBIC)
       .at(ctx.elapsed() - hoverStart);
   }
@@ -54,25 +53,38 @@ class LerpBallView {
         .undecorated()
         .opacity(0.85f)
         .panel(panel -> panel
-          .size(new Vec2(1200, 800))
-          .background(new Vec3(20, 20, 30))
-          .paintable(ctx -> ctx
-            .color(color(ctx))
-            .oval(pos(ctx).sub(radius(ctx).div(2)), radius(ctx)))
-          .onMouse(mouse -> mouse
-            .pressed(ctx -> {
-              origin = pos(ctx);
-              destination = ctx.pos();
-              moveStart = ctx.elapsed();
+            .size(new Vec2(1200, 800))
+            .background(new Vec3(20, 20, 30))
+            .paintable(ctx -> {
+              var t = ctx.elapsed() / 1_000_000_000f;
+              // orbiting rings
+              for (int i = 0; i < 5; i++) {
+                var angle = t * (i + 1) * 0.5f + i * (float) (Math.PI * 2 / 5);
+                var ox = (float) Math.cos(angle) * 120;
+                var oy = (float) Math.sin(angle) * 120;
+                var center = pos(ctx).add(new Vec2(ox, oy));
+                var size = new Vec2(12);
+                ctx.color(Vec3.fromHSV((t * 0.1f + i * 0.2f) % 1f, 1f, 1f))
+                    .oval(center.sub(size.div(2)), size);
+              }
+              // main ball
+              ctx.color(color(ctx))
+                  .oval(pos(ctx).sub(radius(ctx).div(2)), radius(ctx));
             })
-            .moved(this::updateHover))
-          .onKey(key -> key
-            .pressed("SPACE", ctx -> {
-              origin = pos(ctx);
-              destination = ctx.panelSize().div(2);
-              moveStart = ctx.elapsed();
-            })))
-    .resolve("done"));
+            .onMouse(mouse -> mouse
+                .pressed(ctx -> {
+                  origin = pos(ctx);
+                  destination = ctx.pos();
+                  moveStart = ctx.elapsed();
+                })
+                .moved(this::updateHover))
+            .onKey(key -> key
+                .pressed("SPACE", ctx -> {
+                  origin = pos(ctx);
+                  destination = ctx.panelSize().div(2);
+                  moveStart = ctx.elapsed();
+                })))
+        .resolve("done"));
   }
 }
 
