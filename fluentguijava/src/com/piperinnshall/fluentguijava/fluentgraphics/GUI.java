@@ -36,13 +36,6 @@ class GUI {
   }
 }
 
-class Slot<T> {
-  private Optional<T> inner = Optional.empty();
-  static <T> Slot<T> of() { return new Slot<>(); }
-  void fill(T t) { inner = Optional.of(t); }
-  T get() { return inner.get(); }
-}
-
 @FunctionalInterface interface FrameScope<R> { void run(FrameBuilder<R> f); }
 @FunctionalInterface interface PanelScope { void run(PanelBuilder p); }
 @FunctionalInterface interface KeyScope { void run(KeyBuilder k); }
