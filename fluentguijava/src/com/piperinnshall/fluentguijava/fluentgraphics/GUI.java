@@ -10,7 +10,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -45,6 +47,7 @@ class Slot<T> {
 @FunctionalInterface interface PanelScope { void run(PanelBuilder p); }
 @FunctionalInterface interface KeyScope { void run(KeyBuilder k); }
 @FunctionalInterface interface MouseScope { void run(MouseBuilder m); }
+@FunctionalInterface interface GraphicsScope { void run(GraphicsCtx g); }
 
 interface Ctx {
   long elapsed();
@@ -79,7 +82,7 @@ interface PanelBuilder {
   PanelBuilder size(Vec2 dimension);
   PanelBuilder background(int hex);
   PanelBuilder background(Vec3 rgb);
-  PanelBuilder paintable(Consumer<GraphicsCtx> p);
+  PanelBuilder paintable(GraphicsScope scope);
   PanelBuilder onKey(KeyScope scope);
   PanelBuilder onMouse(MouseScope scope);
 }
@@ -160,13 +163,13 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
 class CPanelBuilder implements PanelBuilder {
   Point2 dimension = new Point2(100, 100);
   Color col;
-  Consumer<GraphicsCtx> paintable;
+  GraphicsScope paintable;
   KeyScope keyScope;
   MouseScope mouseScope;
   @Override public PanelBuilder size(Vec2 dimension) { this.dimension = Point2.round(dimension); return this; }
   @Override public PanelBuilder background(int hex) { this.col = new Color(hex); return this; }
   @Override public PanelBuilder background(Vec3 rgb) { this.col = Point3.round(rgb).awtColor(); return this; }
-  @Override public PanelBuilder paintable(Consumer<GraphicsCtx> p) { this.paintable = p; return this; }
+  @Override public PanelBuilder paintable(GraphicsScope scope) { this.paintable = scope; return this; }
   @Override public PanelBuilder onKey(KeyScope keyScope) { this.keyScope = keyScope; return this; }
   @Override public PanelBuilder onMouse(MouseScope mouseScope) { this.mouseScope = mouseScope; return this; }
 }
@@ -217,20 +220,7 @@ class CMouseBuilder implements MouseBuilder {
   }
 }
 
-final class CGraphicsCtx implements GraphicsCtx {
-  private final Graphics2D g2d;
-  private final long elapsed;
-  private final Vec2 screenSize;
-  private final Vec2 panelSize;
-  CGraphicsCtx(Graphics2D g2d, long elapsed, Vec2 screenSize, Vec2 panelSize) {
-    this.g2d = g2d;
-    this.elapsed = elapsed;
-    this.screenSize = screenSize;
-    this.panelSize = panelSize;
-  }
-  @Override public long elapsed() { return elapsed; }
-  @Override public Vec2 screenSize() { return screenSize; }
-  @Override public Vec2 panelSize() { return panelSize; }
+record CGraphicsCtx(Graphics2D g2d, long elapsed, Vec2 screenSize, Vec2 panelSize) implements GraphicsCtx {
   @Override public GraphicsCtx rect(Vec2 pos, Vec2 dim) {
     Point2 p = Point2.round(pos), d = Point2.round(dim);
     g2d.fillRect(p.x(), p.y(), d.x(), d.y()); return this;
@@ -255,8 +245,8 @@ class CFrame extends JFrame {
 class CPanel extends JPanel {
   private long elapsed;
   private final Vec2 screenSize;
-  private final Consumer<GraphicsCtx> paintable;
-  CPanel(Consumer<GraphicsCtx> paintable, Vec2 screenSize) {
+  private final GraphicsScope paintable;
+  CPanel(GraphicsScope paintable, Vec2 screenSize) {
     this.paintable = paintable;
     this.screenSize = screenSize;
   }
@@ -266,6 +256,6 @@ class CPanel extends JPanel {
   @Override public void paintComponent(Graphics g) {
     super.paintComponent(g);
     if (paintable == null) return;
-    paintable.accept(new CGraphicsCtx((Graphics2D) g, elapsed, screenSize, new Vec2(getWidth(), getHeight())));
+    paintable.run(new CGraphicsCtx((Graphics2D) g, elapsed, screenSize, new Vec2(getWidth(), getHeight())));
   }
 }
