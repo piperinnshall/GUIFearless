@@ -2,9 +2,10 @@ package com.piperinnshall.fluentguijava.fluentgraphics;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Color;
 
 /*
- * Library-only point (do not expose to library user)
+ * Library-only points (do not expose to library user)
  */
 record Point2(int x, int y) {
   static Point2 round(Vec2 v) {
@@ -12,6 +13,12 @@ record Point2(int x, int y) {
   }
   Dimension awtDimension() { return new Dimension(x, y); }
   Point awtPoint() { return new Point(x, y); }
+}
+record Point3(int x, int y, int z) {
+  static Point3 round(Vec3 v) {
+    return new Point3(Math.round(v.x()), Math.round(v.y()), Math.round(v.z()));
+  }
+  Color awtColor() { return new Color(x, y, z); }
 }
 
 interface Vec<T extends Vec<T>> {
