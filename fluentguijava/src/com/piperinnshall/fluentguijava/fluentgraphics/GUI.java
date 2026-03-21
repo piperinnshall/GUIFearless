@@ -46,8 +46,12 @@ interface Ctx {
   Vec2 screenSize();
   Vec2 panelSize();
 }
-interface MouseCtx extends Ctx { Vec2 pos(); }
-interface KeyCtx extends Ctx { String key(); }
+interface MouseCtx extends Ctx {
+  Vec2 pos();
+}
+interface KeyCtx extends Ctx {
+  String key();
+}
 interface GraphicsCtx extends Ctx {
   GraphicsCtx rect(Vec2 position, Vec2 dimension);
   GraphicsCtx oval(Vec2 position, Vec2 dimension);
@@ -163,9 +167,7 @@ class CPanelBuilder implements PanelBuilder {
   @Override public PanelBuilder onMouse(MouseScope mouseScope) { this.mouseScope = mouseScope; return this; }
 }
 
-class CKeyBuilder implements KeyBuilder {
-  final CPanel panel;
-  CKeyBuilder(CPanel panel) { this.panel = panel; }
+record CKeyBuilder(CPanel panel) implements KeyBuilder {
   private KeyBuilder bind(String stroke, String key, Consumer<KeyCtx> action) {
     panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(stroke), stroke);
     panel.getActionMap().put(stroke, new AbstractAction() {
@@ -178,9 +180,7 @@ class CKeyBuilder implements KeyBuilder {
   @Override public KeyBuilder released(String key, Consumer<KeyCtx> action) { return bind("released " + key, key, action); }
 }
 
-class CMouseBuilder implements MouseBuilder {
-  final CPanel panel;
-  CMouseBuilder(CPanel panel) { this.panel = panel; }
+record CMouseBuilder(CPanel panel) implements MouseBuilder {
   private MouseCtx ctx(MouseEvent e) {
     return new CMouseCtx(panel.elapsedNow(), new Vec2(e.getX(), e.getY()), panel.screenSize(), new Vec2(panel.getWidth(), panel.getHeight()));
   }
