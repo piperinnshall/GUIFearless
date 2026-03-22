@@ -37,9 +37,9 @@ class GUI {
 
 @FunctionalInterface interface FrameScope<R> { void run(FrameBuilder<R> f); }
 @FunctionalInterface interface PanelScope { void run(PanelBuilder p); }
-@FunctionalInterface interface KeyScope { void run(KeyBuilder k); }
-@FunctionalInterface interface MouseScope { void run(MouseBuilder m); }
-@FunctionalInterface interface GraphicsScope { void run(GraphicsCtx g); }
+@FunctionalInterface interface KeyScope { void run(KeyBuilder k); static KeyScope nop() { return _ -> {}; } }
+@FunctionalInterface interface MouseScope { void run(MouseBuilder m); static MouseScope nop() { return _ -> {}; } }
+@FunctionalInterface interface GraphicsScope { void run(GraphicsCtx g); static GraphicsScope nop() { return _ -> {}; } }
 
 interface Ctx {
   long elapsed();
@@ -60,7 +60,7 @@ interface GraphicsCtx extends Ctx {
   GraphicsCtx color(Vec3 rgb);
 }
 
-interface FrameBuilder<R> {
+interface FrameBuilder<R> extends PanelBuilder {
   FrameBuilder<R> resolve(R r);
   FrameBuilder<R> size(Vec2 dimension);
   FrameBuilder<R> location(Vec2 location);
@@ -69,6 +69,11 @@ interface FrameBuilder<R> {
   FrameBuilder<R> maximized();
   FrameBuilder<R> opacity(float opacity);
   FrameBuilder<R> panel(PanelScope scope);
+  @Override FrameBuilder<R> background(int hex);
+  @Override FrameBuilder<R> background(Vec3 rgb);
+  @Override FrameBuilder<R> paintable(GraphicsScope scope);
+  @Override FrameBuilder<R> onKey(KeyScope scope);
+  @Override FrameBuilder<R> onMouse(MouseScope scope);
 }
 
 interface PanelBuilder {
@@ -104,12 +109,15 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
   boolean maximized = false;
   float opacity = 1f;
   private final long startTime = System.nanoTime();
+  private final CPanelBuilder root = new CPanelBuilder();
   List<CPanelBuilder> pbs = new ArrayList<>();
 
   public void start(String title, int fps, CompletableFuture<RuntimeException> done) {
     var screenSize = resolveScreenSize();
     var frame = new CFrame(title, screenSize, done);
-    pbs.stream().map(pb -> buildPanel(pb, frame)).forEach(frame::add);
+    var rootPanel = buildPanel(root, frame);
+    frame.setContentPane(rootPanel);
+    pbs.stream().map(pb -> buildPanel(pb, frame)).forEach(rootPanel::add);
     frame.setUndecorated(undecorated);
     frame.setResizable(resizable);
     frame.setOpacity(opacity);
@@ -126,8 +134,8 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
     var panel = new CPanel(pb.paintable, frame);
     panel.setPreferredSize(pb.dimension.awtDimension());
     panel.setBackground(pb.col);
-    if (pb.keyScope != null) { pb.keyScope.run(new CKeyBuilder(panel)); }
-    if (pb.mouseScope != null) { pb.mouseScope.run(new CMouseBuilder(panel)); }
+    pb.keyScope.run(new CKeyBuilder(panel));
+    pb.mouseScope.run(new CMouseBuilder(panel));
     return panel;
   }
 
@@ -154,14 +162,19 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
     pbs.add(pb);
     return this;
   }
+  @Override public FrameBuilder<R> background(int hex) { root.background(hex); return this; }
+  @Override public FrameBuilder<R> background(Vec3 rgb) { root.background(rgb); return this; }
+  @Override public FrameBuilder<R> paintable(GraphicsScope scope) { root.paintable(scope); return this; }
+  @Override public FrameBuilder<R> onKey(KeyScope scope) { root.onKey(scope); return this; }
+  @Override public FrameBuilder<R> onMouse(MouseScope scope) { root.onMouse(scope); return this; }
 }
 
 class CPanelBuilder implements PanelBuilder {
   Point2 dimension = new Point2(100, 100);
-  Color col;
-  GraphicsScope paintable;
-  KeyScope keyScope;
-  MouseScope mouseScope;
+  Color col = Color.BLACK;
+  GraphicsScope paintable = GraphicsScope.nop();
+  KeyScope keyScope = KeyScope.nop();
+  MouseScope mouseScope = MouseScope.nop();
   @Override public PanelBuilder size(Vec2 dimension) { this.dimension = Point2.round(dimension); return this; }
   @Override public PanelBuilder background(int hex) { this.col = new Color(hex); return this; }
   @Override public PanelBuilder background(Vec3 rgb) { this.col = Point3.round(rgb).awtColor(); return this; }
@@ -260,7 +273,6 @@ class CPanel extends JPanel {
   CFrame frame() { return frame; }
   @Override public void paintComponent(Graphics g) {
     super.paintComponent(g);
-    if (paintable == null) { return; }
     paintable.run(new CGraphicsCtx((Graphics2D) g, frame.elapsed(), frame.screenSize(), new Vec2(getWidth(), getHeight())));
   }
 }

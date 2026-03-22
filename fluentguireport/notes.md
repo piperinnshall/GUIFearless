@@ -90,13 +90,14 @@ Step 1: Support label.text() via slots
 Step 2: Support text area.focus and .text and stuff
 Step 3: Somehow we need a label  and text area that represent the whole frame.
 
-
 # TODO
-- Null object pattern for keyScope and mouseScope
-- paintable.run called internally from CPanel
 - Decide and document: super.paintComponent before or after paintable.run
 
 # DONE
 - Fix screenSize and elapsed owned by frame
 - Fix map to forEach
 - Call repaint on the frame via tick
+- Null object pattern for keyScope, mouseScope, and paintable
+- CFrameBuilder implements FrameBuilder and PanelBuilder via root CPanelBuilder
+- FrameBuilder overrides PanelBuilder methods with covariant return to preserve chain
+- Root panel set as content pane, child panels added into it
