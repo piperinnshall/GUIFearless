@@ -1,4 +1,4 @@
-package com.piperinnshall.fluentguijava.main;
+package com.piperinnshall.fluentguijava.gui;
 
 import java.util.ArrayList;
 import java.util.List;

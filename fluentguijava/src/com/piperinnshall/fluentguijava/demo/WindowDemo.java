@@ -1,8 +1,11 @@
-package com.piperinnshall.fluentguijava.fluentgraphics;
+package com.piperinnshall.fluentguijava.demo;
+
+import com.piperinnshall.fluentguijava.main.*;
+import com.piperinnshall.fluentguijava.main.vec.*;
 
 public class WindowDemo {
   public static void main(String[] a) {
-    new GUI().run("Window Demo", 60, frame -> frame
+    new FluentGUI().run("Window Demo", 60, frame -> frame
         // .size(new Vec2(800, 600))
         // .location(new Vec2(100, 100))
         .maximized()
@@ -26,7 +29,7 @@ public class WindowDemo {
           ctx.line(new Vec2(cx, 0), new Vec2(cx, ctx.panelSize().y()));
         })
         .onKey(k -> k
-            .pressed("ESCAPE", ctx -> System.exit(0))
+            .pressed("ESCAPE", _ -> System.exit(0))
             .pressed("F", ctx -> System.out.println("elapsed: " + ctx.elapsed()))
         )
         .onMouse(m -> m

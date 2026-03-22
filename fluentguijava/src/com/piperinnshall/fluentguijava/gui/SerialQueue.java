@@ -1,4 +1,4 @@
-package com.piperinnshall.fluentguijava.main;
+package com.piperinnshall.fluentguijava.gui;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;

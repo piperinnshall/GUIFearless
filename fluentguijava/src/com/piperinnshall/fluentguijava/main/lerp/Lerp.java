@@ -1,4 +1,6 @@
-package com.piperinnshall.fluentguijava.fluentgraphics;
+package com.piperinnshall.fluentguijava.main.lerp;
+
+import com.piperinnshall.fluentguijava.main.vec.Vec;
 
 /*
  * A = start position.
@@ -23,13 +25,13 @@ public sealed interface Lerp permits Lerp.F, Lerp.V {
     return new V<>(start, end, duration, easing);
   }
   record F(float start, float end, float duration, Easing easing) implements Lerp {
-    float at(long elapsedNanos) {
+    public float at(long elapsedNanos) {
       var t = Math.clamp(elapsedNanos / (duration * 1_000_000_000f), 0f, 1f);
       return start + (end - start) * easing.apply(t);
     }
   }
   record V<T extends Vec<T>>(T start, T end, float duration, Easing easing) implements Lerp {
-    T at(long elapsedNanos) {
+    public T at(long elapsedNanos) {
       var t = Math.clamp(elapsedNanos / (duration * 1_000_000_000f), 0f, 1f);
       return start.add(end.sub(start).mul(easing.apply(t)));
     }

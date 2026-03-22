@@ -1,4 +1,7 @@
-package com.piperinnshall.fluentguijava.fluentgraphics;
+package com.piperinnshall.fluentguijava.demo;
+
+import com.piperinnshall.fluentguijava.main.*;
+import com.piperinnshall.fluentguijava.main.vec.*;
 
 public class LissajousDemo {
   public static void main(String[] a) {
@@ -12,7 +15,7 @@ public class LissajousDemo {
         new Curve(7, 5, 1.5f),
         new Curve(3, 4, 1.8f),
     };
-    new GUI().run("Lissajous", 120, frame -> frame
+    new FluentGUI().run("Lissajous", 120, frame -> frame
         .undecorated()
         .maximized()
         .background(new Vec3(20, 13, 26))

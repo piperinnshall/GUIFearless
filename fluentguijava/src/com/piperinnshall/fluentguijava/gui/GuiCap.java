@@ -1,4 +1,4 @@
-package com.piperinnshall.fluentguijava.main;
+package com.piperinnshall.fluentguijava.gui;
 
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
