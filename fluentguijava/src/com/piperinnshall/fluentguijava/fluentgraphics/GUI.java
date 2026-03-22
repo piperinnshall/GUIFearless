@@ -30,7 +30,7 @@ class GUI {
     frame.run(fb);
     SwingUtilities.invokeLater(() -> fb.start(title, fps, done));
     var tr = done.join();
-    if (tr == null) return fb.resolve();
+    if (tr == null) { return fb.resolve(); }
     throw tr;
   }
 }
@@ -105,30 +105,32 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
   float opacity = 1f;
   private final long startTime = System.nanoTime();
   List<CPanelBuilder> pbs = new ArrayList<>();
+
   public void start(String title, int fps, CompletableFuture<RuntimeException> done) {
     var screenSize = resolveScreenSize();
-    var frame = new CFrame(title, done);
-    var panels = pbs.stream().map(pb -> buildPanel(pb, frame, screenSize)).toList();
+    var frame = new CFrame(title, screenSize, done);
+    pbs.stream().map(pb -> buildPanel(pb, frame)).forEach(frame::add);
     frame.setUndecorated(undecorated);
     frame.setResizable(resizable);
     frame.setOpacity(opacity);
     frame.setFocusable(true);
     frame.pack();
     frame.setVisible(true);
-    if (maximized) frame.setExtendedState(Frame.MAXIMIZED_BOTH);
-    if (dimension != null) frame.setSize(dimension.awtDimension());
-    if (location != null) frame.setLocation(location.awtPoint()); else frame.setLocationRelativeTo(null);
-    new Timer(1000 / fps, _ -> panels.forEach(p -> p.repaint(System.nanoTime() - startTime))).start();
+    if (maximized) { frame.setExtendedState(Frame.MAXIMIZED_BOTH); }
+    if (dimension != null) { frame.setSize(dimension.awtDimension()); }
+    if (location != null) { frame.setLocation(location.awtPoint()); } else { frame.setLocationRelativeTo(null); }
+    new Timer(1000 / fps, _ -> frame.tick(System.nanoTime() - startTime)).start();
   }
-  private CPanel buildPanel(CPanelBuilder pb, CFrame frame, Vec2 screenSize) {
-    var panel = new CPanel(pb.paintable, screenSize);
+
+  private CPanel buildPanel(CPanelBuilder pb, CFrame frame) {
+    var panel = new CPanel(pb.paintable, frame);
     panel.setPreferredSize(pb.dimension.awtDimension());
     panel.setBackground(pb.col);
-    frame.add(panel);
-    if (pb.keyScope != null) pb.keyScope.run(new CKeyBuilder(panel));
-    if (pb.mouseScope != null) pb.mouseScope.run(new CMouseBuilder(panel));
+    if (pb.keyScope != null) { pb.keyScope.run(new CKeyBuilder(panel)); }
+    if (pb.mouseScope != null) { pb.mouseScope.run(new CMouseBuilder(panel)); }
     return panel;
   }
+
   private static Vec2 resolveScreenSize() {
     var b = java.awt.GraphicsEnvironment
       .getLocalGraphicsEnvironment()
@@ -137,6 +139,7 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
       .getBounds();
     return new Vec2(b.width, b.height);
   }
+
   public R resolve() { return resolve; }
   @Override public FrameBuilder<R> resolve(R r) { this.resolve = r; return this; }
   @Override public FrameBuilder<R> size(Vec2 dimension) { this.dimension = Point2.round(dimension); return this; }
@@ -172,8 +175,9 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
     panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(stroke), stroke);
     panel.getActionMap().put(stroke, new AbstractAction() {
       public void actionPerformed(ActionEvent e) {
-        action.accept(new CKeyCtx(panel.elapsedNow(), panel.screenSize(), new Vec2(panel.getWidth(), panel.getHeight()), key));
-      }});
+        action.accept(new CKeyCtx(panel.frame().elapsed(), panel.frame().screenSize(), new Vec2(panel.getWidth(), panel.getHeight()), key));
+      }
+    });
     return this;
   }
   @Override public KeyBuilder pressed(String key, Consumer<KeyCtx> action) { return bind(key, key, action); }
@@ -182,74 +186,81 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
 
 record CMouseBuilder(CPanel panel) implements MouseBuilder {
   private MouseCtx ctx(MouseEvent e) {
-    return new CMouseCtx(panel.elapsedNow(), new Vec2(e.getX(), e.getY()), panel.screenSize(), new Vec2(panel.getWidth(), panel.getHeight()));
+    return new CMouseCtx(panel.frame().elapsed(), new Vec2(e.getX(), e.getY()), panel.frame().screenSize(), new Vec2(panel.getWidth(), panel.getHeight()));
   }
   private MouseBuilder mouse(MouseAdapter a) { panel.addMouseListener(a); return this; }
   private MouseBuilder motion(MouseMotionAdapter a) { panel.addMouseMotionListener(a); return this; }
   @Override public MouseBuilder clicked(Consumer<MouseCtx> action) {
-    return mouse(new MouseAdapter() { public void mouseClicked(MouseEvent e) { action.accept(ctx(e)); }});
+    return mouse(new MouseAdapter() { public void mouseClicked(MouseEvent e) { action.accept(ctx(e)); } });
   }
   @Override public MouseBuilder pressed(Consumer<MouseCtx> action) {
-    return mouse(new MouseAdapter() { public void mousePressed(MouseEvent e) { action.accept(ctx(e)); }});
+    return mouse(new MouseAdapter() { public void mousePressed(MouseEvent e) { action.accept(ctx(e)); } });
   }
   @Override public MouseBuilder released(Consumer<MouseCtx> action) {
-    return mouse(new MouseAdapter() { public void mouseReleased(MouseEvent e) { action.accept(ctx(e)); }});
+    return mouse(new MouseAdapter() { public void mouseReleased(MouseEvent e) { action.accept(ctx(e)); } });
   }
   @Override public MouseBuilder moved(Consumer<MouseCtx> action) {
-    return motion(new MouseMotionAdapter() { public void mouseMoved(MouseEvent e) { action.accept(ctx(e)); }});
+    return motion(new MouseMotionAdapter() { public void mouseMoved(MouseEvent e) { action.accept(ctx(e)); } });
   }
   @Override public MouseBuilder dragged(Consumer<MouseCtx> action) {
-    return motion(new MouseMotionAdapter() { public void mouseDragged(MouseEvent e) { action.accept(ctx(e)); }});
+    return motion(new MouseMotionAdapter() { public void mouseDragged(MouseEvent e) { action.accept(ctx(e)); } });
   }
   @Override public MouseBuilder entered(Consumer<MouseCtx> action) {
-    return mouse(new MouseAdapter() { public void mouseEntered(MouseEvent e) { action.accept(ctx(e)); }});
+    return mouse(new MouseAdapter() { public void mouseEntered(MouseEvent e) { action.accept(ctx(e)); } });
   }
   @Override public MouseBuilder exited(Consumer<MouseCtx> action) {
-    return mouse(new MouseAdapter() { public void mouseExited(MouseEvent e) { action.accept(ctx(e)); }});
+    return mouse(new MouseAdapter() { public void mouseExited(MouseEvent e) { action.accept(ctx(e)); } });
   }
 }
 
 record CGraphicsCtx(Graphics2D g2d, long elapsed, Vec2 screenSize, Vec2 panelSize) implements GraphicsCtx {
   @Override public GraphicsCtx rect(Vec2 pos, Vec2 dim) {
     Point2 p = Point2.round(pos), d = Point2.round(dim);
-    g2d.fillRect(p.x(), p.y(), d.x(), d.y()); return this;
+    g2d.fillRect(p.x(), p.y(), d.x(), d.y());
+    return this;
   }
   @Override public GraphicsCtx oval(Vec2 pos, Vec2 dim) {
     Point2 p = Point2.round(pos), d = Point2.round(dim);
-    g2d.fillOval(p.x(), p.y(), d.x(), d.y()); return this;
+    g2d.fillOval(p.x(), p.y(), d.x(), d.y());
+    return this;
   }
   @Override public GraphicsCtx line(Vec2 from, Vec2 to) {
     Point2 f = Point2.round(from), t = Point2.round(to);
-    g2d.drawLine(f.x(), f.y(), t.x(), t.y()); return this;
+    g2d.drawLine(f.x(), f.y(), t.x(), t.y());
+    return this;
   }
   @Override public GraphicsCtx color(Vec3 rgb) { g2d.setColor(Point3.round(rgb).awtColor()); return this; }
   @Override public GraphicsCtx color(int hex) { g2d.setColor(new Color(hex)); return this; }
 }
+
 record CMouseCtx(long elapsed, Vec2 pos, Vec2 screenSize, Vec2 panelSize) implements MouseCtx {}
 record CKeyCtx(long elapsed, Vec2 screenSize, Vec2 panelSize, String key) implements KeyCtx {}
 
 class CFrame extends JFrame {
-  CFrame(String title, CompletableFuture<RuntimeException> done) {
+  private long elapsed;
+  private final Vec2 screenSize;
+  CFrame(String title, Vec2 screenSize, CompletableFuture<RuntimeException> done) {
     super(title);
-    addWindowListener(new WindowAdapter() { public void windowClosed(WindowEvent e) { done.complete(null); }});
+    this.screenSize = screenSize;
+    addWindowListener(new WindowAdapter() { public void windowClosed(WindowEvent e) { done.complete(null); } });
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
   }
+  void tick(long elapsed) { this.elapsed = elapsed; repaint(); }
+  long elapsed() { return elapsed; }
+  Vec2 screenSize() { return screenSize; }
 }
 
 class CPanel extends JPanel {
-  private long elapsed;
-  private final Vec2 screenSize;
+  private final CFrame frame;
   private final GraphicsScope paintable;
-  CPanel(GraphicsScope paintable, Vec2 screenSize) {
+  CPanel(GraphicsScope paintable, CFrame frame) {
     this.paintable = paintable;
-    this.screenSize = screenSize;
+    this.frame = frame;
   }
-  Vec2 screenSize() { return screenSize; }
-  public void repaint(long elapsed) { this.elapsed = elapsed; repaint(); }
-  long elapsedNow() { return elapsed; }
+  CFrame frame() { return frame; }
   @Override public void paintComponent(Graphics g) {
     super.paintComponent(g);
-    if (paintable == null) return;
-    paintable.run(new CGraphicsCtx((Graphics2D) g, elapsed, screenSize, new Vec2(getWidth(), getHeight())));
+    if (paintable == null) { return; }
+    paintable.run(new CGraphicsCtx((Graphics2D) g, frame.elapsed(), frame.screenSize(), new Vec2(getWidth(), getHeight())));
   }
 }
