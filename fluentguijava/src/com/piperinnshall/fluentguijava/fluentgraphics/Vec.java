@@ -5,20 +5,12 @@ import java.awt.Point;
 import java.awt.Color;
 
 /*
- * Library-only points (do not expose to library user)
+ * Library-only transforms (do not expose to library user)
  */
-record Point2(int x, int y) {
-  static Point2 round(Vec2 v) {
-    return new Point2(Math.round(v.x()), Math.round(v.y()));
-  }
-  Dimension awtDimension() { return new Dimension(x, y); }
-  Point awtPoint() { return new Point(x, y); }
-}
-record Point3(int x, int y, int z) {
-  static Point3 round(Vec3 v) {
-    return new Point3(Math.round(v.x()), Math.round(v.y()), Math.round(v.z()));
-  }
-  Color awtColor() { return new Color(x, y, z); }
+interface Awt {
+  static Dimension dimension(Vec2 v) { return new Dimension(Math.round(v.x()), Math.round(v.y())); }
+  static Point point(Vec2 v) { return new Point(Math.round(v.x()), Math.round(v.y())); }
+  static Color color(Vec3 v) { return new Color(Math.round(v.x()), Math.round(v.y()), Math.round(v.z())); }
 }
 
 interface Vec<T extends Vec<T>> {
