@@ -92,6 +92,7 @@ Step 3: Somehow we need a label  and text area that represent the whole frame.
 
 # TODO
 - Decide and document: super.paintComponent before or after paintable.run
+- Layout manager on root panel so child panels are visible
 
 # DONE
 - Fix screenSize and elapsed owned by frame
@@ -101,3 +102,10 @@ Step 3: Somehow we need a label  and text area that represent the whole frame.
 - CFrameBuilder implements FrameBuilder and PanelBuilder via root CPanelBuilder
 - FrameBuilder overrides PanelBuilder methods with covariant return to preserve chain
 - Root panel set as content pane, child panels added into it
+- maximize() uses resolveScreenSize, MAXIMIZED_BOTH dropped
+- opacity only applied when undecorated
+- undecorated and maximized are orthogonal
+
+# Documentation
+- Size and location override maximized
+- opacity requires undecorated
