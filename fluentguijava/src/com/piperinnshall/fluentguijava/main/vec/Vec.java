@@ -1,5 +1,6 @@
 package com.piperinnshall.fluentguijava.main.vec;
 
+@SuppressWarnings("unchecked")
 public interface Vec<T extends Vec<T>> {
   T add(T point);
   T sub(T point);

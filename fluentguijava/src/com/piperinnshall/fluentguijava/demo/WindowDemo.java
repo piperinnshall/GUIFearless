@@ -6,9 +6,9 @@ import com.piperinnshall.fluentguijava.main.vec.*;
 public class WindowDemo {
   public static void main(String[] a) {
     new FluentGUI().run("Window Demo", 60, frame -> frame
-        // .size(new Vec2(800, 600))
-        // .location(new Vec2(100, 100))
         .maximized()
+        .size(new Vec2(800, 600))
+        .location(new Vec2(100, 100))
         .undecorated()
         .resizable()
         .opacity(0.95f)
