@@ -1,6 +1,6 @@
-package com.piperinnshall.fluentguijava.main.lerp;
+package com.piperinnshall.fluentguijava.lerp;
 
-import com.piperinnshall.fluentguijava.main.vec.Vec;
+import com.piperinnshall.fluentguijava.vec.Vec;
 
 /*
  * A = start position.

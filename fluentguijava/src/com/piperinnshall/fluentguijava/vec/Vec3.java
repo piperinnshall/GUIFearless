@@ -1,4 +1,4 @@
-package com.piperinnshall.fluentguijava.main.vec;
+package com.piperinnshall.fluentguijava.vec;
 
 public record Vec3(float x, float y, float z) implements Vec<Vec3> {
   Vec3(float scalar) {

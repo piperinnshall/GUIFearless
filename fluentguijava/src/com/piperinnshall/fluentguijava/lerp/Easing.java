@@ -1,4 +1,4 @@
-package com.piperinnshall.fluentguijava.main.lerp;
+package com.piperinnshall.fluentguijava.lerp;
 
 /**
  * Easing functions from https://easings.net/

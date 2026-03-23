@@ -1,8 +1,7 @@
-package com.piperinnshall.fluentguijava.main.builder;
+package com.piperinnshall.fluentguijava.builder;
 
-import com.piperinnshall.fluentguijava.main.Ctx;
-import com.piperinnshall.fluentguijava.main.vec.Vec2;
-import com.piperinnshall.fluentguijava.main.vec.Vec3;
+import com.piperinnshall.fluentguijava.vec.Vec2;
+import com.piperinnshall.fluentguijava.vec.Vec3;
 
 public interface FrameBuilder extends PanelBuilder {
   FrameBuilder location(Vec2 location);
@@ -10,13 +9,13 @@ public interface FrameBuilder extends PanelBuilder {
   FrameBuilder undecorated();
   FrameBuilder maximized();
   FrameBuilder opacity(float opacity);
-  @Override FrameBuilder panel(Scope<PanelBuilder> scope);
   @Override FrameBuilder size(Vec2 dimension);
   @Override FrameBuilder background(int hex);
   @Override FrameBuilder background(Vec3 rgb);
   @Override FrameBuilder paintable(Scope<Ctx.Graphics> scope);
   @Override FrameBuilder onKey(Scope<KeyBuilder> scope);
   @Override FrameBuilder onMouse(Scope<MouseBuilder> scope);
-  interface Border<N, S, E, W, C> extends FrameBuilder, PanelBuilder.Border<N, S, E, W, C> {}
+  @Override FrameBuilder flow(Scope<PanelBuilder.Flow> scope);
+  interface Flow extends FrameBuilder, PanelBuilder.Flow{}
 }
 

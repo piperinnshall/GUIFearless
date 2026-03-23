@@ -1,7 +1,7 @@
-package com.piperinnshall.fluentguijava.main;
+package com.piperinnshall.fluentguijava.builder;
 
-import com.piperinnshall.fluentguijava.main.vec.Vec2;
-import com.piperinnshall.fluentguijava.main.vec.Vec3;
+import com.piperinnshall.fluentguijava.vec.Vec2;
+import com.piperinnshall.fluentguijava.vec.Vec3;
 
 public interface Ctx {
   long elapsed();

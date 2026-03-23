@@ -1,4 +1,4 @@
-package com.piperinnshall.fluentguijava.main.vec;
+package com.piperinnshall.fluentguijava.vec;
 
 @SuppressWarnings("unchecked")
 public interface Vec<T extends Vec<T>> {
