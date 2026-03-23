@@ -13,5 +13,13 @@ public interface PanelBuilder {
   PanelBuilder paintable(Scope<Ctx.Graphics> scope);
   PanelBuilder onKey(Scope<KeyBuilder> scope);
   PanelBuilder onMouse(Scope<MouseBuilder> scope);
+
+  interface Border<N, S, E, W, C> extends PanelBuilder {
+    Border<Present, S, E, W, C> north(Scope<PanelBuilder> scope);
+    Border<N, Present, E, W, C> south(Scope<PanelBuilder> scope);
+    Border<N, S, Present, W, C> east(Scope<PanelBuilder> scope);
+    Border<N, S, E, Present, C> west(Scope<PanelBuilder> scope);
+    Border<N, S, E, W, Present> center(Scope<PanelBuilder> scope);
+  }
 }
 

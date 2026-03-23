@@ -87,8 +87,7 @@ class LerpBallView {
                   origin = pos(ctx);
                   destination = ctx.panelSize().div(2);
                   moveStart = ctx.elapsed();
-                })))
-        .resolve("done"));
+                }))));
   }
 }
 

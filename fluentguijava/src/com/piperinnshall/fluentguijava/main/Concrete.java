@@ -37,8 +37,7 @@ interface Awt {
   static Color color(Vec3 v) { return new Color(Math.round(v.x()), Math.round(v.y()), Math.round(v.z())); }
 }
 
-class CFrameBuilder<R> implements FrameBuilder<R> {
-  R resolve;
+class CFrameBuilder implements FrameBuilder {
   Vec2 dimension;
   Vec2 location;
   boolean resizable = false;
@@ -91,20 +90,18 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
     frame.setLocation(0, 0);
   }
 
-  public R resolve() { return resolve; }
-  @Override public FrameBuilder<R> resolve(R r) { this.resolve = r; return this; }
-  @Override public FrameBuilder<R> size(Vec2 dimension) { this.dimension = dimension; return this; }
-  @Override public FrameBuilder<R> location(Vec2 location) { this.location = location; return this; }
-  @Override public FrameBuilder<R> resizable() { this.resizable = true; return this; }
-  @Override public FrameBuilder<R> undecorated() { this.undecorated = true; return this; }
-  @Override public FrameBuilder<R> maximized() { this.maximized = true; return this; }
-  @Override public FrameBuilder<R> opacity(float opacity) { this.opacity = opacity; return this; }
-  @Override public FrameBuilder<R> panel(Scope<PanelBuilder> scope) { var pb = new CPanelBuilder(); scope.run(pb); pbs.add(pb); return this; }
-  @Override public FrameBuilder<R> background(int hex) { root.background(hex); return this; }
-  @Override public FrameBuilder<R> background(Vec3 rgb) { root.background(rgb); return this; }
-  @Override public FrameBuilder<R> paintable(Scope<Ctx.Graphics> scope) { root.paintable(scope); return this; }
-  @Override public FrameBuilder<R> onKey(Scope<KeyBuilder> scope) { root.onKey(scope); return this; }
-  @Override public FrameBuilder<R> onMouse(Scope<MouseBuilder> scope) { root.onMouse(scope); return this; }
+  @Override public FrameBuilder size(Vec2 dimension) { this.dimension = dimension; return this; }
+  @Override public FrameBuilder location(Vec2 location) { this.location = location; return this; }
+  @Override public FrameBuilder resizable() { this.resizable = true; return this; }
+  @Override public FrameBuilder undecorated() { this.undecorated = true; return this; }
+  @Override public FrameBuilder maximized() { this.maximized = true; return this; }
+  @Override public FrameBuilder opacity(float opacity) { this.opacity = opacity; return this; }
+  @Override public FrameBuilder panel(Scope<PanelBuilder> scope) { var pb = new CPanelBuilder(); scope.run(pb); pbs.add(pb); return this; }
+  @Override public FrameBuilder background(int hex) { root.background(hex); return this; }
+  @Override public FrameBuilder background(Vec3 rgb) { root.background(rgb); return this; }
+  @Override public FrameBuilder paintable(Scope<Ctx.Graphics> scope) { root.paintable(scope); return this; }
+  @Override public FrameBuilder onKey(Scope<KeyBuilder> scope) { root.onKey(scope); return this; }
+  @Override public FrameBuilder onMouse(Scope<MouseBuilder> scope) { root.onMouse(scope); return this; }
 }
 
 class CPanelBuilder implements PanelBuilder {

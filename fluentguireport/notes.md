@@ -35,28 +35,19 @@ queue of event?
 - [ ] Instead of having panel and seperate setlayout, you have layout components
 - [ ] special layout panel that uses the frame layouts.
 - [ ] State machine compile time error for panels? (Borderlayout)
-- [ ] Grid: Add and go into its rightful place. Error when we dont fill the
-  layout.
-- [ ] when super.paintComponent() do we do shapes on top or not. super before or
-  after paint?. add a button and what happens?
-- [ ] Use the absolute position layout that allows us to have stuff in
-  positions.
-- [ ] Recompute layout every time there is a resize: hopefully not every
-  repaint.
+- [ ] Grid: Add and go into its rightful place. Error when we dont fill the layout.
+- [ ] when super.paintComponent() do we do shapes on top or not. super before or after paint?. add a button and what happens?
+- [ ] Use the absolute position layout that allows us to have stuff in positions.
+- [ ] Recompute layout every time there is a resize: hopefully not every repaint.
 - [ ] Is focus only keys? or mouse.
 - [ ] Do panels focus when you click.
 - [ ] Can click work wihtout requesting focus?
 - [ ] Key and mouse top level.
-- [ ] Find a way to have in addition to the list of panels, where is the mouse
-  in each panel.
-- [ ] Global context list of rich panel can ask for mouse info, size of panel,
-  know if mouse is in the panel by bound checks or implicit
-- [ ] Any focusable thing like text area also triggers binds. try to expose the
-  boolean choice.
-- [ ] Do reset the focus to top level or not in text boxes or not, document
-  clearly?
-- [ ] Somehow we have a way that will press this button to cause the model event
-  and the model can call gui.exit
+- [ ] Find a way to have in addition to the list of panels, where is the mouse in each panel.
+- [ ] Global context list of rich panel can ask for mouse info, size of panel, know if mouse is in the panel by bound checks or implicit
+- [ ] Any focusable thing like text area also triggers binds. try to expose the boolean choice.
+- [ ] Do reset the focus to top level or not in text boxes or not, document clearly?
+- [ ] Somehow we have a way that will press this button to cause the model event and the model can call gui.exit
 - [ ] we will need a family of gui operations: exit resetFocus
 - [ ] any text area will have .focus to aqcuire focus
 
@@ -65,7 +56,7 @@ queue of event?
 - Step 3: Somehow we need a label  and text area that represent the whole
   frame.  
 
-  # TODO
+# TODO
 
 - Decide and document: super.paintComponent before or after paintable.run
 - Layout manager on root panel so child panels are visible 
