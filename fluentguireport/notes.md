@@ -78,6 +78,9 @@ queue of event?
 - Separate public API between packages
 - Scope unified to single generic Scope with nop() replacing names subtypes
 - Fixed map to forEach in panel building
+- Add border layout to frame and panel builder interface
+- Refactor concrete so that CFrameBuilder extends CPanelBuilder
+- Panels can nest arbitrarily deep
 
 # DOCUMENTATION
 

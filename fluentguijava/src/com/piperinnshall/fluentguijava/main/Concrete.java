@@ -37,23 +37,45 @@ interface Awt {
   static Color color(Vec3 v) { return new Color(Math.round(v.x()), Math.round(v.y()), Math.round(v.z())); }
 }
 
-class CFrameBuilder implements FrameBuilder {
-  Vec2 dimension;
+class CPanelBuilder implements PanelBuilder {
+  Vec2 dimension = new Vec2(100, 100);
+  Color col = Color.BLACK;
+  Scope<Ctx.Graphics> paintable = Scope.nop();
+  Scope<KeyBuilder> keyScope = Scope.nop();
+  Scope<MouseBuilder> mouseScope = Scope.nop();
+  List<CPanelBuilder> children = new ArrayList<>();
+  CPanel build(CFrame frame) {
+    var panel = new CPanel(paintable, frame);
+    panel.setPreferredSize(Awt.dimension(dimension));
+    panel.setBackground(col);
+    keyScope.run(new CKeyBuilder(panel));
+    mouseScope.run(new CMouseBuilder(panel));
+    children.forEach(child -> panel.add(child.build(frame)));
+    return panel;
+  }
+  @Override public PanelBuilder size(Vec2 dimension) { this.dimension = dimension; return this; }
+  @Override public PanelBuilder background(int hex) { this.col = new Color(hex); return this; }
+  @Override public PanelBuilder background(Vec3 rgb) { this.col = Awt.color(rgb); return this; }
+  @Override public PanelBuilder paintable(Scope<Ctx.Graphics> scope) { this.paintable = scope; return this; }
+  @Override public PanelBuilder onKey(Scope<KeyBuilder> scope) { this.keyScope = scope; return this; }
+  @Override public PanelBuilder onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return this; }
+  @Override public PanelBuilder panel(Scope<PanelBuilder> scope) { var pb = new CPanelBuilder(); scope.run(pb); children.add(pb); return this; }
+}
+
+class CFrameBuilder extends CPanelBuilder implements FrameBuilder {
   Vec2 location;
+  Vec2 frameSize;
   boolean resizable = false;
   boolean undecorated = false;
   boolean maximized = false;
   float opacity = 1f;
   private final long startTime = System.nanoTime();
-  private final CPanelBuilder root = new CPanelBuilder();
-  List<CPanelBuilder> pbs = new ArrayList<>();
 
   public void start(String title, int fps, CompletableFuture<RuntimeException> done) {
     var screenSize = resolveScreenSize();
     var frame = new CFrame(title, screenSize, done);
-    var rootPanel = buildPanel(root, frame);
+    var rootPanel = build(frame);
     frame.setContentPane(rootPanel);
-    pbs.forEach(pb -> rootPanel.add(buildPanel(pb, frame)));
     frame.setUndecorated(undecorated);
     frame.setResizable(resizable);
     if (undecorated) { frame.setOpacity(opacity); }
@@ -61,17 +83,17 @@ class CFrameBuilder implements FrameBuilder {
     frame.pack();
     frame.setVisible(true);
     if (maximized) { maximize(frame); }
-    if (dimension != null) { frame.setSize(Awt.dimension(dimension)); }
+    if (frameSize != null) { frame.setSize(Awt.dimension(frameSize)); }
     if (location != null) { frame.setLocation(Awt.point(location)); } else { frame.setLocationRelativeTo(null); }
     new Timer(1000 / fps, _ -> frame.tick(System.nanoTime() - startTime)).start();
   }
 
-  private CPanel buildPanel(CPanelBuilder pb, CFrame frame) {
-    var panel = new CPanel(pb.paintable, frame);
-    panel.setPreferredSize(Awt.dimension(pb.dimension));
-    panel.setBackground(pb.col);
-    pb.keyScope.run(new CKeyBuilder(panel));
-    pb.mouseScope.run(new CMouseBuilder(panel));
+  @Override CPanel build(CFrame frame) {
+    var panel = new CPanel(paintable, frame);
+    panel.setBackground(col);
+    keyScope.run(new CKeyBuilder(panel));
+    mouseScope.run(new CMouseBuilder(panel));
+    children.forEach(child -> panel.add(child.build(frame)));
     return panel;
   }
 
@@ -90,33 +112,18 @@ class CFrameBuilder implements FrameBuilder {
     frame.setLocation(0, 0);
   }
 
-  @Override public FrameBuilder size(Vec2 dimension) { this.dimension = dimension; return this; }
+  @Override public FrameBuilder size(Vec2 dimension) { this.frameSize = dimension; return this; }
   @Override public FrameBuilder location(Vec2 location) { this.location = location; return this; }
   @Override public FrameBuilder resizable() { this.resizable = true; return this; }
   @Override public FrameBuilder undecorated() { this.undecorated = true; return this; }
   @Override public FrameBuilder maximized() { this.maximized = true; return this; }
   @Override public FrameBuilder opacity(float opacity) { this.opacity = opacity; return this; }
-  @Override public FrameBuilder panel(Scope<PanelBuilder> scope) { var pb = new CPanelBuilder(); scope.run(pb); pbs.add(pb); return this; }
-  @Override public FrameBuilder background(int hex) { root.background(hex); return this; }
-  @Override public FrameBuilder background(Vec3 rgb) { root.background(rgb); return this; }
-  @Override public FrameBuilder paintable(Scope<Ctx.Graphics> scope) { root.paintable(scope); return this; }
-  @Override public FrameBuilder onKey(Scope<KeyBuilder> scope) { root.onKey(scope); return this; }
-  @Override public FrameBuilder onMouse(Scope<MouseBuilder> scope) { root.onMouse(scope); return this; }
-}
-
-class CPanelBuilder implements PanelBuilder {
-  Vec2 dimension = new Vec2(100, 100);
-  Color col = Color.BLACK;
-  Scope<Ctx.Graphics> paintable = Scope.nop();
-  Scope<KeyBuilder> keyScope = Scope.nop();
-  Scope<MouseBuilder> mouseScope = Scope.nop();
-
-  @Override public PanelBuilder size(Vec2 dimension) { this.dimension = dimension; return this; }
-  @Override public PanelBuilder background(int hex) { this.col = new Color(hex); return this; }
-  @Override public PanelBuilder background(Vec3 rgb) { this.col = Awt.color(rgb); return this; }
-  @Override public PanelBuilder paintable(Scope<Ctx.Graphics> scope) { this.paintable = scope; return this; }
-  @Override public PanelBuilder onKey(Scope<KeyBuilder> scope) { this.keyScope = scope; return this; }
-  @Override public PanelBuilder onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return this; }
+  @Override public FrameBuilder panel(Scope<PanelBuilder> scope) { var pb = new CPanelBuilder(); scope.run(pb); children.add(pb); return this; }
+  @Override public FrameBuilder background(int hex) { this.col = new Color(hex); return this; }
+  @Override public FrameBuilder background(Vec3 rgb) { this.col = Awt.color(rgb); return this; }
+  @Override public FrameBuilder paintable(Scope<Ctx.Graphics> scope) { this.paintable = scope; return this; }
+  @Override public FrameBuilder onKey(Scope<KeyBuilder> scope) { this.keyScope = scope; return this; }
+  @Override public FrameBuilder onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return this; }
 }
 
 record CKeyBuilder(CPanel panel) implements KeyBuilder {
@@ -139,7 +146,6 @@ record CMouseBuilder(CPanel panel) implements MouseBuilder {
     return new CMouseCtx(panel.frame().elapsed(), new Vec2(e.getX(), e.getY()), panel.frame().screenSize(),
         new Vec2(panel.getWidth(), panel.getHeight()));
   }
-
   private MouseBuilder mouse(MouseAdapter a) { panel.addMouseListener(a); return this; }
   private MouseBuilder motion(MouseMotionAdapter a) { panel.addMouseMotionListener(a); return this; }
   @Override public MouseBuilder clicked(Consumer<Ctx.Mouse> action) { return mouse(new MouseAdapter() { public void mouseClicked(MouseEvent e) { action.accept(ctx(e)); } }); }
@@ -159,7 +165,6 @@ record CGraphicsCtx(Graphics2D g2d, long elapsed, Vec2 screenSize, Vec2 panelSiz
   @Override public Ctx.Graphics color(Vec3 rgb) { g2d.setColor(Awt.color(rgb)); return this; }
   @Override public Ctx.Graphics color(int hex) { g2d.setColor(new Color(hex)); return this; }
 }
-
 record CMouseCtx(long elapsed, Vec2 pos, Vec2 screenSize, Vec2 panelSize) implements Ctx.Mouse {}
 record CKeyCtx(long elapsed, Vec2 screenSize, Vec2 panelSize, String key) implements Ctx.Key {}
 

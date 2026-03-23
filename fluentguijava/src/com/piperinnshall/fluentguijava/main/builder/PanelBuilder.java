@@ -7,6 +7,7 @@ import com.piperinnshall.fluentguijava.main.vec.Vec3;
 import com.piperinnshall.fluentguijava.main.builder.PanelBuilder;
 
 public interface PanelBuilder {
+  PanelBuilder panel(Scope<PanelBuilder> scope);
   PanelBuilder size(Vec2 dimension);
   PanelBuilder background(int hex);
   PanelBuilder background(Vec3 rgb);
