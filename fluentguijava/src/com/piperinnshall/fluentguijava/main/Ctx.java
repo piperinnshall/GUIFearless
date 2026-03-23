@@ -7,12 +7,15 @@ public interface Ctx {
   long elapsed();
   Vec2 screenSize();
   Vec2 panelSize();
+
   interface Mouse extends Ctx {
     Vec2 pos();
   }
+
   interface Key extends Ctx {
     String key();
   }
+
   interface Graphics extends Ctx {
     Graphics rect(Vec2 position, Vec2 dimension);
     Graphics oval(Vec2 position, Vec2 dimension);

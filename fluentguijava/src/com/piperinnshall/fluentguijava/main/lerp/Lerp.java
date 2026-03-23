@@ -26,14 +26,15 @@ public sealed interface Lerp permits Lerp.F, Lerp.V {
   }
   record F(float start, float end, float duration, Easing easing) implements Lerp {
     public float at(long elapsedNanos) {
-      var t = Math.clamp(elapsedNanos / (duration * 1_000_000_000f), 0f, 1f);
-      return start + (end - start) * easing.apply(t);
+      return start + (end - start) * easing.apply(t(elapsedNanos, duration));
     }
   }
   record V<T extends Vec<T>>(T start, T end, float duration, Easing easing) implements Lerp {
     public T at(long elapsedNanos) {
-      var t = Math.clamp(elapsedNanos / (duration * 1_000_000_000f), 0f, 1f);
-      return start.add(end.sub(start).mul(easing.apply(t)));
+      return start.add(end.sub(start).mul(easing.apply(t(elapsedNanos, duration))));
     }
+  }
+  private static float t(long elapsedNanos, float duration) {
+    return Math.clamp(elapsedNanos / (duration * 1_000_000_000f), 0f, 1f);
   }
 }

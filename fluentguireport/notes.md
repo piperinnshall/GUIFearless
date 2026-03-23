@@ -81,6 +81,7 @@ queue of event?
 - maximize() uses resolveScreenSize, MAXIMIZED_BOTH dropped
 - opacity only applied when undecorated
 - undecorated and maximized are orthogonal 
+- Separate public API between packages
 
 # Documentation
 - Size and location override maximized

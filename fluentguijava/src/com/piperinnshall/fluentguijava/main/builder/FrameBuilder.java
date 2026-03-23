@@ -1,6 +1,6 @@
 package com.piperinnshall.fluentguijava.main.builder;
 
-import com.piperinnshall.fluentguijava.main.Scope;
+import com.piperinnshall.fluentguijava.main.Ctx;
 import com.piperinnshall.fluentguijava.main.vec.Vec2;
 import com.piperinnshall.fluentguijava.main.vec.Vec3;
 
@@ -12,11 +12,11 @@ public interface FrameBuilder<R> extends PanelBuilder {
   FrameBuilder<R> undecorated();
   FrameBuilder<R> maximized();
   FrameBuilder<R> opacity(float opacity);
-  FrameBuilder<R> panel(Scope.Panel scope);
+  FrameBuilder<R> panel(Scope<PanelBuilder> scope);
   @Override FrameBuilder<R> background(int hex);
   @Override FrameBuilder<R> background(Vec3 rgb);
-  @Override FrameBuilder<R> paintable(Scope.Graphics scope);
-  @Override FrameBuilder<R> onKey(Scope.Key scope);
-  @Override FrameBuilder<R> onMouse(Scope.Mouse scope);
+  @Override FrameBuilder<R> paintable(Scope<Ctx.Graphics> scope);
+  @Override FrameBuilder<R> onKey(Scope<KeyBuilder> scope);
+  @Override FrameBuilder<R> onMouse(Scope<MouseBuilder> scope);
 }
 

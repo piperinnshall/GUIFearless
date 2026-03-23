@@ -1,11 +1,10 @@
 package com.piperinnshall.fluentguijava.main;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Color;
-
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -28,6 +27,7 @@ import com.piperinnshall.fluentguijava.main.builder.FrameBuilder;
 import com.piperinnshall.fluentguijava.main.builder.KeyBuilder;
 import com.piperinnshall.fluentguijava.main.builder.MouseBuilder;
 import com.piperinnshall.fluentguijava.main.builder.PanelBuilder;
+import com.piperinnshall.fluentguijava.main.builder.Scope;
 import com.piperinnshall.fluentguijava.main.vec.Vec2;
 import com.piperinnshall.fluentguijava.main.vec.Vec3;
 
@@ -54,7 +54,7 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
     var frame = new CFrame(title, screenSize, done);
     var rootPanel = buildPanel(root, frame);
     frame.setContentPane(rootPanel);
-    pbs.stream().map(pb -> buildPanel(pb, frame)).forEach(rootPanel::add);
+    pbs.forEach(pb -> rootPanel.add(buildPanel(pb, frame)));
     frame.setUndecorated(undecorated);
     frame.setResizable(resizable);
     if (undecorated) { frame.setOpacity(opacity); }
@@ -99,27 +99,27 @@ class CFrameBuilder<R> implements FrameBuilder<R> {
   @Override public FrameBuilder<R> undecorated() { this.undecorated = true; return this; }
   @Override public FrameBuilder<R> maximized() { this.maximized = true; return this; }
   @Override public FrameBuilder<R> opacity(float opacity) { this.opacity = opacity; return this; }
-  @Override public FrameBuilder<R> panel(Scope.Panel scope) { var pb = new CPanelBuilder(); scope.run(pb); pbs.add(pb); return this; }
+  @Override public FrameBuilder<R> panel(Scope<PanelBuilder> scope) { var pb = new CPanelBuilder(); scope.run(pb); pbs.add(pb); return this; }
   @Override public FrameBuilder<R> background(int hex) { root.background(hex); return this; }
   @Override public FrameBuilder<R> background(Vec3 rgb) { root.background(rgb); return this; }
-  @Override public FrameBuilder<R> paintable(Scope.Graphics scope) { root.paintable(scope); return this; }
-  @Override public FrameBuilder<R> onKey(Scope.Key scope) { root.onKey(scope); return this; }
-  @Override public FrameBuilder<R> onMouse(Scope.Mouse scope) { root.onMouse(scope); return this; } 
+  @Override public FrameBuilder<R> paintable(Scope<Ctx.Graphics> scope) { root.paintable(scope); return this; }
+  @Override public FrameBuilder<R> onKey(Scope<KeyBuilder> scope) { root.onKey(scope); return this; }
+  @Override public FrameBuilder<R> onMouse(Scope<MouseBuilder> scope) { root.onMouse(scope); return this; }
 }
 
 class CPanelBuilder implements PanelBuilder {
   Vec2 dimension = new Vec2(100, 100);
   Color col = Color.BLACK;
-  Scope.Graphics paintable = Scope.Graphics.nop();
-  Scope.Key keyScope = Scope.Key.nop();
-  Scope.Mouse mouseScope = Scope.Mouse.nop();
+  Scope<Ctx.Graphics> paintable = Scope.nop();
+  Scope<KeyBuilder> keyScope = Scope.nop();
+  Scope<MouseBuilder> mouseScope = Scope.nop();
 
   @Override public PanelBuilder size(Vec2 dimension) { this.dimension = dimension; return this; }
   @Override public PanelBuilder background(int hex) { this.col = new Color(hex); return this; }
   @Override public PanelBuilder background(Vec3 rgb) { this.col = Awt.color(rgb); return this; }
-  @Override public PanelBuilder paintable(Scope.Graphics scope) { this.paintable = scope; return this; }
-  @Override public PanelBuilder onKey(Scope.Key keyScope) { this.keyScope = keyScope; return this; }
-  @Override public PanelBuilder onMouse(Scope.Mouse mouseScope) { this.mouseScope = mouseScope; return this; } 
+  @Override public PanelBuilder paintable(Scope<Ctx.Graphics> scope) { this.paintable = scope; return this; }
+  @Override public PanelBuilder onKey(Scope<KeyBuilder> scope) { this.keyScope = scope; return this; }
+  @Override public PanelBuilder onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return this; }
 }
 
 record CKeyBuilder(CPanel panel) implements KeyBuilder {
@@ -134,7 +134,7 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
     return this;
   }
   @Override public KeyBuilder pressed(String key, Consumer<Ctx.Key> action) { return bind(key, key, action); }
-  @Override public KeyBuilder released(String key, Consumer<Ctx.Key> action) { return bind("released " + key, key, action); } 
+  @Override public KeyBuilder released(String key, Consumer<Ctx.Key> action) { return bind("released " + key, key, action); }
 }
 
 record CMouseBuilder(CPanel panel) implements MouseBuilder {
@@ -151,7 +151,7 @@ record CMouseBuilder(CPanel panel) implements MouseBuilder {
   @Override public MouseBuilder moved(Consumer<Ctx.Mouse> action) { return motion(new MouseMotionAdapter() { public void mouseMoved(MouseEvent e) { action.accept(ctx(e)); } }); }
   @Override public MouseBuilder dragged(Consumer<Ctx.Mouse> action) { return motion(new MouseMotionAdapter() { public void mouseDragged(MouseEvent e) { action.accept(ctx(e)); } }); }
   @Override public MouseBuilder entered(Consumer<Ctx.Mouse> action) { return mouse(new MouseAdapter() { public void mouseEntered(MouseEvent e) { action.accept(ctx(e)); } }); }
-  @Override public MouseBuilder exited(Consumer<Ctx.Mouse> action) { return mouse(new MouseAdapter() { public void mouseExited(MouseEvent e) { action.accept(ctx(e)); } }); } 
+  @Override public MouseBuilder exited(Consumer<Ctx.Mouse> action) { return mouse(new MouseAdapter() { public void mouseExited(MouseEvent e) { action.accept(ctx(e)); } }); }
 }
 
 record CGraphicsCtx(Graphics2D g2d, long elapsed, Vec2 screenSize, Vec2 panelSize) implements Ctx.Graphics {
@@ -162,8 +162,9 @@ record CGraphicsCtx(Graphics2D g2d, long elapsed, Vec2 screenSize, Vec2 panelSiz
   @Override public Ctx.Graphics color(Vec3 rgb) { g2d.setColor(Awt.color(rgb)); return this; }
   @Override public Ctx.Graphics color(int hex) { g2d.setColor(new Color(hex)); return this; }
 }
+
 record CMouseCtx(long elapsed, Vec2 pos, Vec2 screenSize, Vec2 panelSize) implements Ctx.Mouse {}
-record CKeyCtx(long elapsed, Vec2 screenSize, Vec2 panelSize, String key) implements Ctx.Key{}
+record CKeyCtx(long elapsed, Vec2 screenSize, Vec2 panelSize, String key) implements Ctx.Key {}
 
 class CFrame extends JFrame {
   private long elapsed;
@@ -181,8 +182,8 @@ class CFrame extends JFrame {
 
 class CPanel extends JPanel {
   private final CFrame frame;
-  private final Scope.Graphics paintable;
-  CPanel(Scope.Graphics paintable, CFrame frame) { this.paintable = paintable; this.frame = frame; }
+  private final Scope<Ctx.Graphics> paintable;
+  CPanel(Scope<Ctx.Graphics> paintable, CFrame frame) { this.paintable = paintable; this.frame = frame; }
   CFrame frame() { return frame; }
   @Override public void paintComponent(Graphics g) {
     super.paintComponent(g);

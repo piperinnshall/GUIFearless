@@ -10,7 +10,7 @@ public record Vec3(float x, float y, float z) implements Vec<Vec3> {
   public Vec3 sub(float scalar) { return new Vec3(x - scalar, y - scalar, z - scalar); }
   public Vec3 mul(float scalar) { return new Vec3(x * scalar, y * scalar, z * scalar); }
   public Vec3 div(float scalar) { return new Vec3(x / scalar, y / scalar, z / scalar); }
-  public float dot(Vec<Vec3> v) {
+  public float dot(Vec3 v) {
     var v3 = (Vec3) v;
     return x * v3.x() + y * v3.y() + z * v3.z();
   }
