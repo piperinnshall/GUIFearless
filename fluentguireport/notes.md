@@ -81,6 +81,7 @@ queue of event?
 - Add border layout to frame and panel builder interface
 - Refactor concrete so that CFrameBuilder extends CPanelBuilder
 - Panels can nest arbitrarily deep
+- Panels and frames are now separated by layout
 
 # DOCUMENTATION
 

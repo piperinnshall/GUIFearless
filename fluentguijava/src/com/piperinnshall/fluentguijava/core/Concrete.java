@@ -1,6 +1,7 @@
 package com.piperinnshall.fluentguijava.core;
 
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -37,7 +38,8 @@ abstract class CPanelBuilder implements PanelBuilder {
   Scope<KeyBuilder> keyScope = Scope.nop();
   Scope<MouseBuilder> mouseScope = Scope.nop();
   List<CPanelBuilder> children = new ArrayList<>();
-  abstract CPanel build(CFrame frame);
+
+  abstract CPanel buildPanel(CFrame frame);
   protected CPanel basePanel(CFrame frame) {
     var panel = new CPanel(paintable, frame);
     panel.setPreferredSize(Awt.dimension(dimension));
@@ -56,9 +58,10 @@ abstract class CPanelBuilder implements PanelBuilder {
 }
 
 class CPanelBuilderFlow extends CPanelBuilder implements PanelBuilder.Flow {
-  @Override CPanel build(CFrame frame) {
+  @Override CPanel buildPanel(CFrame frame) {
     var panel = basePanel(frame);
-    children.forEach(child -> panel.add(child.build(frame)));
+    panel.setLayout(new FlowLayout());
+    children.forEach(child -> panel.add(child.buildPanel(frame)));
     return panel;
   }
 }
@@ -71,10 +74,11 @@ abstract class CFrameBuilder extends CPanelBuilder implements FrameBuilder {
   boolean maximized = false;
   float opacity = 1f;
   private final long startTime = System.nanoTime();
+
   public void start(String title, int fps, CompletableFuture<RuntimeException> done) {
     var screenSize = resolveScreenSize();
     var frame = new CFrame(title, screenSize, done);
-    var rootPanel = build(frame);
+    var rootPanel = buildPanel(frame);
     frame.setContentPane(rootPanel);
     frame.setUndecorated(undecorated);
     frame.setResizable(resizable);
@@ -113,13 +117,12 @@ abstract class CFrameBuilder extends CPanelBuilder implements FrameBuilder {
   @Override public FrameBuilder onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return this; }
   @Override public FrameBuilder flow(Scope<PanelBuilder.Flow> scope) { var pb = new CPanelBuilderFlow(); scope.run(pb); children.add(pb); return this; }
 }
-class CFrameBuilderFlow extends CFrameBuilder implements FrameBuilder.Flow{
-  @Override CPanel build(CFrame frame) {
-    var panel = new CPanel(paintable, frame);
-    panel.setBackground(col);
-    keyScope.run(new CKeyBuilder(panel));
-    mouseScope.run(new CMouseBuilder(panel));
-    children.forEach(child -> panel.add(child.build(frame)));
+
+class CFrameBuilderFlow extends CFrameBuilder implements FrameBuilder.Flow {
+  @Override CPanel buildPanel(CFrame frame) {
+    var panel = basePanel(frame);
+    panel.setLayout(new FlowLayout());
+    children.forEach(child -> panel.add(child.buildPanel(frame)));
     return panel;
   }
 }
@@ -137,7 +140,7 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
   }
   @Override public KeyBuilder pressed(String key, Consumer<Ctx.Key> action) { return bind(key, key, action); }
   @Override public KeyBuilder released(String key, Consumer<Ctx.Key> action) { return bind("released " + key, key, action); }
-  }
+}
 
 record CMouseBuilder(CPanel panel) implements MouseBuilder {
   private Ctx.Mouse ctx(MouseEvent e) {
