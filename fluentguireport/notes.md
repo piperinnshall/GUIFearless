@@ -58,6 +58,7 @@ queue of event?
 
 # TODO
 
+- Design combinator interface generator for borderLayout
 - Decide and document: super.paintComponent before or after paintable.run
 - Layout manager on root panel so child panels are visible 
 - Own panel and frame resolution correctly.

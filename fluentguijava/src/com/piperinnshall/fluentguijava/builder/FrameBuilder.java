@@ -10,7 +10,6 @@ public interface FrameBuilder extends PanelBuilder {
   FrameBuilder maximized();
   FrameBuilder opacity(float opacity);
   @Override FrameBuilder size(Vec2 dimension);
-  @Override FrameBuilder background(int hex);
   @Override FrameBuilder background(Vec3 rgb);
   @Override FrameBuilder paintable(Scope<Ctx.Graphics> scope);
   @Override FrameBuilder onKey(Scope<KeyBuilder> scope);
