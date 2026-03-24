@@ -14,6 +14,12 @@ public class FluentGUI {
     run(title, fps, fb);
   }
 
+  public void border(String title, int fps, Scope<FrameBuilder.Border> frame) {
+    var fb = new CFrameBuilderBorder();
+    frame.run(fb);
+    run(title, fps, fb);
+  }
+
   private void run(String title, int fps, CFrameBuilder fb) {
     var done = new CompletableFuture<RuntimeException>();
     SwingUtilities.invokeLater(() -> fb.start(title, fps, done));
