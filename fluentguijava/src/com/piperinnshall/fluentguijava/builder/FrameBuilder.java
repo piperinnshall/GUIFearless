@@ -15,6 +15,19 @@ public interface FrameBuilder extends PanelBuilder {
   @Override FrameBuilder onKey(Scope<KeyBuilder> scope);
   @Override FrameBuilder onMouse(Scope<MouseBuilder> scope);
   @Override FrameBuilder flow(Scope<PanelBuilder.Flow> scope);
+  @Override FrameBuilder border(Scope<PanelBuilder.Border> scope);
   interface Flow extends FrameBuilder, PanelBuilder.Flow{}
+  interface Border extends FrameBuilder, PanelBuilder.Border{
+    @Override FrameBuilder.Border northFlow(Scope<PanelBuilder.Flow> scope);
+    @Override FrameBuilder.Border southFlow(Scope<PanelBuilder.Flow> scope);
+    @Override FrameBuilder.Border eastFlow(Scope<PanelBuilder.Flow> scope);
+    @Override FrameBuilder.Border westFlow(Scope<PanelBuilder.Flow> scope);
+    @Override FrameBuilder.Border centerFlow(Scope<PanelBuilder.Flow> scope);
+    @Override FrameBuilder.Border northBorder(Scope<PanelBuilder.Border> scope);
+    @Override FrameBuilder.Border southBorder(Scope<PanelBuilder.Border> scope);
+    @Override FrameBuilder.Border eastBorder(Scope<PanelBuilder.Border> scope);
+    @Override FrameBuilder.Border westBorder(Scope<PanelBuilder.Border> scope);
+    @Override FrameBuilder.Border centerBorder(Scope<PanelBuilder.Border> scope);
+  }
 }
 

@@ -2,6 +2,7 @@ package com.piperinnshall.fluentguijava.core;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -102,6 +103,15 @@ class CPanelBuilderFlow extends CPanelBuilder implements PanelBuilder.Flow {
   }
 }
 
+class CPanelBuilderBorder extends CPanelBuilder implements PanelBuilder.Border {
+  @Override CPanel buildPanel(CFrame frame) {
+    var panel = basePanel(frame);
+    panel.setLayout(new FlowLayout());
+    children.forEach(child -> panel.add(child.buildPanel(frame)));
+    return panel;
+  }
+}
+
 class CFrameBuilderFlow extends CFrameBuilder implements FrameBuilder.Flow {
   @Override CPanel buildPanel(CFrame frame) {
     var panel = basePanel(frame);
@@ -111,4 +121,12 @@ class CFrameBuilderFlow extends CFrameBuilder implements FrameBuilder.Flow {
   }
 }
 
+class CFrameBuilderBorder extends CFrameBuilder implements FrameBuilder.Border {
+  @Override CPanel buildPanel(CFrame frame) {
+    var panel = basePanel(frame);
+    panel.setLayout(new BorderLayout());
+    children.forEach(child -> panel.add(child.buildPanel(frame)));
+    return panel;
+  }
+}
 
