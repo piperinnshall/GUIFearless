@@ -83,6 +83,8 @@ queue of event?
 - Refactor concrete so that CFrameBuilder extends CPanelBuilder
 - Panels can nest arbitrarily deep
 - Panels and frames are now separated by layout
+- Layout builders on FluentGUI class
+- Minimize duplication with generic polymorphism tricks
 
 # DOCUMENTATION
 

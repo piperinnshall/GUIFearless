@@ -7,7 +7,9 @@ public class WindowDemo {
   public static void main(String[] a) {
     new FluentGUI().border("Window Demo", 60, frame -> frame
         .size(new Vec2(600, 400))
-        .resizable()
+        .onMouse(mouse -> mouse 
+          .clicked(_ -> {})
+        )
         .northFlow(top -> top
             .size(new Vec2(600, 50))
             .background(new Vec3(50, 50, 150))

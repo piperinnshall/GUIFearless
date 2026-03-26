@@ -32,11 +32,7 @@ public record SerialQueue(BlockingQueue<Runnable> q, Thread t) {
     return t;
   }
 
-  public void submit(Runnable r) {
-    synchronized (q) {
-      q.add(r);
-    }
-  }
+  public void submit(Runnable r) { synchronized (q) { q.add(r); } }
 
   public void closeAndWait() {
     synchronized (q) {
