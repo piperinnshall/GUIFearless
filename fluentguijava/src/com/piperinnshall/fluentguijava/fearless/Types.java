@@ -1,58 +1,92 @@
 package com.piperinnshall.fluentguijava.fearless;
-
 public interface Types {
-  @SuppressWarnings("unchecked")
-  interface Vec<T extends Vec<T>> {
+  record X(int x){}
+  record Y(int y){}
+
+  record Width(int w){}
+  record Height(int h){}
+  record Red(int r) {}
+  record Green(int g) {}
+  record Blue(int b) {}
+  record Alpha(int a) {}
+  record Hue(int h) {}
+  record Saturation(int s) {}
+  record Value(int v) {}
+
+  record Scalar(double s) {
+    Scalar add(Scalar o) { return new Scalar(s + o.s); }
+    Scalar sub(Scalar o) { return new Scalar(s - o.s); }
+    Scalar mul(Scalar o) { return new Scalar(s * o.s); }
+    Scalar div(Scalar o) { return new Scalar(s / o.s); }
+    Scalar sqrt() { return new Scalar(Math.sqrt(s)); }
+  }
+
+  record Position(X x, Y y) {}
+  record Dimension(Width width, Height height) {}
+
+  interface Vector<T extends Vector<T>> {
+    T self();
     T add(T point);
     T sub(T point);
-    T add(float scalar);
-    T sub(float scalar);
-    T div(float scalar);
-    T mul(float scalar);
-    float dot(T v);
-    default T normalize() { return div(len()); }
-    default float len() { return (float) Math.sqrt(lenSq()); }
-    default float lenSq() { return dot((T) this); }
-    default float dist(T other) { return sub(other).len(); }
-    default float distSq(T other) { return sub(other).lenSq(); }
+    T add(Scalar scalar);
+    T sub(Scalar scalar);
+    T div(Scalar scalar);
+    T mul(Scalar scalar);
+    Scalar dot(T v);
+    default T normalize()          { return div(len()); }
+    default Scalar len()           { return lenSq().sqrt(); }
+    default Scalar lenSq()         { return dot(self()); }
+    default Scalar dist(T other)   { return sub(other).len(); }
+    default Scalar distSq(T other) { return sub(other).lenSq(); }
   }
-  record Vec2(float x, float y) implements Vec<Vec2> {
-    public Vec2(float scalar) { this(scalar, scalar); }
-    public Vec2 add(Vec2 point) { return new Vec2(x + point.x, y + point.y); }
-    public Vec2 sub(Vec2 point) { return new Vec2(x - point.x, y - point.y); }
-    public Vec2 add(float scalar) { return new Vec2(x + scalar, y + scalar); }
-    public Vec2 sub(float scalar) { return new Vec2(x - scalar, y - scalar); }
-    public Vec2 mul(float scalar) { return new Vec2(x * scalar, y * scalar); }
-    public Vec2 div(float scalar) { return new Vec2(x / scalar, y / scalar); }
-    public float dot(Vec2 v) { var v2 = (Vec2) v; return x * v2.x() + y * v2.y(); }
+  record Vector2(Scalar x, Scalar y) implements Vector<Vector2> {
+    Vector2(Scalar s) { this(s, s); }
+    public Vector2 self() { return this; }
+    public Vector2 add(Vector2 p) { return new Vector2(x.add(p.x), y.add(p.y)); }
+    public Vector2 sub(Vector2 p) { return new Vector2(x.sub(p.x), y.sub(p.y)); }
+    public Vector2 add(Scalar s) { return new Vector2(x.add(s), y.add(s)); }
+    public Vector2 sub(Scalar s) { return new Vector2(x.sub(s), y.sub(s)); }
+    public Vector2 mul(Scalar s) { return new Vector2(x.mul(s), y.mul(s)); }
+    public Vector2 div(Scalar s) { return new Vector2(x.div(s), y.div(s)); }
+    public Scalar dot(Vector2 v) { return x.mul(v.x).add(y.mul(v.y)); }
   }
-  record Vec3(float x, float y, float z) implements Vec<Vec3> {
-    Vec3(float scalar) {
-      this(scalar, scalar, scalar);
-    }
-    public Vec3 add(Vec3 point) { return new Vec3(x + point.x, y + point.y, z + point.z); }
-    public Vec3 sub(Vec3 point) { return new Vec3(x - point.x, y - point.y, z - point.z); }
-    public Vec3 add(float scalar) { return new Vec3(x + scalar, y + scalar, z + scalar); }
-    public Vec3 sub(float scalar) { return new Vec3(x - scalar, y - scalar, z - scalar); }
-    public Vec3 mul(float scalar) { return new Vec3(x * scalar, y * scalar, z * scalar); }
-    public Vec3 div(float scalar) { return new Vec3(x / scalar, y / scalar, z / scalar); }
-    public float dot(Vec3 v) {
-      var v3 = (Vec3) v;
-      return x * v3.x() + y * v3.y() + z * v3.z();
-    }
-    public Vec3 cross(Vec3 v) {
-      return new Vec3(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
-    }
-    public static Vec3 fromHSV(float h, float s, float v) {
-      var i = (int)(h * 6);
-      var f = h * 6 - i;
-      var q = v * (1 - f);
-      var t = v * f;
-      var p = v * (1 - s);
-      var r = switch (i % 6) { case 0, 5 -> v; case 1 -> q; case 2, 3 -> p; default -> t; };
-      var g = switch (i % 6) { case 0 -> t; case 1, 2 -> v; case 3 -> q; default -> p; };
-      var b = switch (i % 6) { case 0, 1 -> p; case 2 -> t; case 3, 4 -> v; default -> q; };
-      return new Vec3(r * 255, g * 255, b * 255);
+  record Vector3(Scalar x, Scalar y, Scalar z) implements Vector<Vector3> {
+    Vector3(Scalar s) { this(s, s, s); }
+    public Vector3 self() { return this; }
+    public Vector3 add(Vector3 p) { return new Vector3(x.add(p.x), y.add(p.y), z.add(p.z)); }
+    public Vector3 sub(Vector3 p) { return new Vector3(x.sub(p.x), y.sub(p.y), z.sub(p.z)); }
+    public Vector3 add(Scalar s) { return new Vector3(x.add(s), y.add(s), z.add(s)); }
+    public Vector3 sub(Scalar s) { return new Vector3(x.sub(s), y.sub(s), z.sub(s)); }
+    public Vector3 mul(Scalar s) { return new Vector3(x.mul(s), y.mul(s), z.mul(s)); }
+    public Vector3 div(Scalar s) { return new Vector3(x.div(s), y.div(s), z.div(s)); }
+    public Scalar dot(Vector3 v) { return x.mul(v.x).add(y.mul(v.y)).add(z.mul(v.z)); }
+    public Vector3 cross(Vector3 v) {
+      return new Vector3(y.mul(v.z).sub(z.mul(v.y)), z.mul(v.x).sub(x.mul(v.z)), x.mul(v.y).sub(y.mul(v.x)));
     }
   }
+
+  record Color(Red r, Green g, Blue b, Alpha a) {
+    Color(Red r, Green g, Blue b) { this(r, g, b, new Alpha(255)); }
+    Color(Hue h, Saturation s, Value v) { this(fromHSV(h, s, v)); }
+    private Color(Color c) { this(c.r, c.g, c.b, c.a); }
+    private static Color fromHSV(Hue h, Saturation s, Value v) {
+      if (s.s() == 0) {
+        int c = v.v() * 255;
+        return new Color(new Red(c), new Green(c), new Blue(c));
+      }
+      double hh = (h.h() - Math.floor(h.h())) * 6.0;
+      double f = hh - Math.floor(hh);
+      double p = v.v() * (1.0 - s.s());
+      double q = v.v() * (1.0 - s.s() * f);
+      double t = v.v() * (1.0 - s.s() * (1.0 - f));
+      return switch ((int) hh) { case 0 -> new Color(new Red((int) (v.v() * 255 + 0.5)), new Green((int) (t * 255 + 0.5)), new Blue((int) (p * 255 + 0.5)));
+        case 1 -> new Color(new Red((int) (q * 255 + 0.5)), new Green((int) (v.v() * 255 + 0.5)), new Blue((int) (p * 255 + 0.5))); 
+        case 2 -> new Color(new Red((int) (p * 255 + 0.5)), new Green((int) (v.v() * 255 + 0.5)), new Blue((int) (t * 255 + 0.5)));
+        case 3 -> new Color(new Red((int) (p * 255 + 0.5)), new Green((int) (q * 255 + 0.5)), new Blue((int) (v.v() * 255 + 0.5)));
+        case 4 -> new Color(new Red((int) (t * 255 + 0.5)), new Green((int) (p * 255 + 0.5)), new Blue((int) (v.v() * 255 + 0.5)));
+        default -> new Color(new Red((int) (v.v() * 255 + 0.5)), new Green((int) (p * 255 + 0.5)), new Blue((int) (q * 255 + 0.5)));
+      };
+    }
+  }
+
 }
