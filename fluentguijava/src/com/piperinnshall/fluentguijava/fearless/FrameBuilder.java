@@ -5,7 +5,9 @@ import com.piperinnshall.fluentguijava.fearless.Types.Position;
 
 public interface FrameBuilder {
   FrameBuilder location(Position location);
-  FrameBuilder maximized(Opacity opacity);
+  FrameBuilder undecorated(Opacity opacity);
+  FrameBuilder maximized();
   FrameBuilder resizable();
-  FrameBuilder undecorated();
+  FrameBuilder flow(Scope<PanelBuilder.Flow> scope);
+  FrameBuilder border(Scope<PanelBuilder.Border> scope);
 }

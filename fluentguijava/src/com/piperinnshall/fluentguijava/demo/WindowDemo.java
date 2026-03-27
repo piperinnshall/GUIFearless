@@ -1,51 +1,51 @@
 package com.piperinnshall.fluentguijava.demo;
-
 import com.piperinnshall.fluentguijava.core.FluentGUI;
 import com.piperinnshall.fluentguijava.fearless.Types.*;
-
 public class WindowDemo {
-  public static void main(String[] a) {
-    new FluentGUI().border("Window Demo", 60, frame -> frame
-        .size(new Vec2(600, 400))
-        .resizable()
-        .onMouse(mouse -> mouse 
-          .clicked(_ -> {})
-        )
+  public static void main() {
+    new FluentGUI().run("Window Demo", 60, frame -> frame
+      .resizable()
+      .undecorated(new Opacity(1))
+      .border(b -> b
+        .size(new Dimension(new Width(600), new Height(400)))
+        .background(new Color(new Red(240), new Green(240), new Blue(240)))
+        .onMouse(mouse -> mouse.clicked(_ -> {}))
         .northFlow(top -> top
-            .size(new Vec2(600, 50))
-            .background(new Vec3(50, 50, 150))
-            .flow(btn -> btn.size(new Vec2(80, 30)).background(new Vec3(100, 100, 200)))
-            .flow(btn -> btn.size(new Vec2(80, 30)).background(new Vec3(100, 100, 200)))
+          .size(new Dimension(new Width(600), new Height(50)))
+          .background(new Color(new Red(200), new Green(210), new Blue(255)))
+          .flow(btn -> btn.size(new Dimension(new Width(80), new Height(30))).background(new Color(new Red(100), new Green(140), new Blue(255))))
+          .flow(btn -> btn.size(new Dimension(new Width(80), new Height(30))).background(new Color(new Red(100), new Green(140), new Blue(255))))
         )
         .southFlow(bottom -> bottom
-            .size(new Vec2(600, 50))
-            .background(new Vec3(150, 50, 50))
-            .flow(btn -> btn.size(new Vec2(120, 30)).background(new Vec3(200, 100, 100)))
+          .size(new Dimension(new Width(600), new Height(50)))
+          .background(new Color(new Red(220), new Green(220), new Blue(220)))
+          .flow(btn -> btn.size(new Dimension(new Width(120), new Height(30))).background(new Color(new Red(160), new Green(160), new Blue(160))))
         )
         .westFlow(sidebar -> sidebar
-            .size(new Vec2(120, 300))
-            .background(new Vec3(50, 150, 50))
-            .flow(item -> item.size(new Vec2(100, 40)).background(new Vec3(100, 200, 100)))
-            .flow(item -> item.size(new Vec2(100, 40)).background(new Vec3(80, 180, 80)))
-            .flow(item -> item.size(new Vec2(100, 40)).background(new Vec3(60, 160, 60)))
+          .size(new Dimension(new Width(120), new Height(300)))
+          .background(new Color(new Red(50), new Green(60), new Blue(80)))
+          .flow(item -> item.size(new Dimension(new Width(100), new Height(40))).background(new Color(new Red(70), new Green(85), new Blue(110))))
+          .flow(item -> item.size(new Dimension(new Width(100), new Height(40))).background(new Color(new Red(70), new Green(85), new Blue(110))))
+          .flow(item -> item.size(new Dimension(new Width(100), new Height(40))).background(new Color(new Red(70), new Green(85), new Blue(110))))
         )
         .centerBorder(center -> center
-            .size(new Vec2(360, 300))
-            .background(new Vec3(30, 30, 30))
-            .northFlow(toolbar -> toolbar
-                .size(new Vec2(360, 40))
-                .background(new Vec3(60, 60, 60))
-                .flow(tool -> tool.size(new Vec2(50, 30)).background(new Vec3(90, 90, 90)))
-                .flow(tool -> tool.size(new Vec2(50, 30)).background(new Vec3(90, 90, 90)))
-            )
-            .centerFlow(content -> content
-                .size(new Vec2(360, 220))
-                .background(new Vec3(20, 20, 20))
-                .flow(card -> card.size(new Vec2(80, 80)).background(new Vec3(200, 150, 50)))
-                .flow(card -> card.size(new Vec2(80, 80)).background(new Vec3(50, 150, 200)))
-                .flow(card -> card.size(new Vec2(80, 80)).background(new Vec3(150, 50, 200)))
-            )
+          .size(new Dimension(new Width(360), new Height(300)))
+          .background(new Color(new Red(255), new Green(255), new Blue(255)))
+          .northFlow(toolbar -> toolbar
+            .size(new Dimension(new Width(360), new Height(40)))
+            .background(new Color(new Red(230), new Green(230), new Blue(230)))
+            .flow(tool -> tool.size(new Dimension(new Width(50), new Height(30))).background(new Color(new Red(180), new Green(180), new Blue(180))))
+            .flow(tool -> tool.size(new Dimension(new Width(50), new Height(30))).background(new Color(new Red(180), new Green(180), new Blue(180))))
+          )
+          .centerFlow(content -> content
+            .size(new Dimension(new Width(360), new Height(220)))
+            .background(new Color(new Red(245), new Green(245), new Blue(250)))
+            .flow(card -> card.size(new Dimension(new Width(80), new Height(80))).background(new Color(new Red(100), new Green(180), new Blue(140))))
+            .flow(card -> card.size(new Dimension(new Width(80), new Height(80))).background(new Color(new Red(100), new Green(180), new Blue(140))))
+            .flow(card -> card.size(new Dimension(new Width(80), new Height(80))).background(new Color(new Red(100), new Green(180), new Blue(140))))
+          )
         )
+      )
     );
   }
 }

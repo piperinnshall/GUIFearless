@@ -4,8 +4,8 @@ import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 public interface PanelBuilder {
   interface Panel<T> {
-    T size(Vec2 dimension);
-    T background(Vec3 rgb);
+    T size(Dimension dimension);
+    T background(Color color);
     T paintable(Scope<Ctx.Graphics> scope);
     T onKey(Scope<KeyBuilder> scope);
     T onMouse(Scope<MouseBuilder> scope);

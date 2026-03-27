@@ -8,14 +8,8 @@ import com.piperinnshall.fluentguijava.fearless.Scope;
 import com.piperinnshall.fluentguijava.fearless.FrameBuilder;
 
 public class FluentGUI {
-  public void flow(String title, int fps, Scope<FrameBuilder.Flow> frame) {
-    var fb = new CFrameBuilderFlow();
-    frame.run(fb);
-    run(title, fps, fb);
-  }
-
-  public void border(String title, int fps, Scope<FrameBuilder.Border> frame) {
-    var fb = new CFrameBuilderBorder();
+  public void run(String title, int fps, Scope<FrameBuilder> frame) {
+    var fb = new CFrameBuilder();
     frame.run(fb);
     run(title, fps, fb);
   }

@@ -17,7 +17,7 @@ public interface Types {
   record Saturation(double s) { public Saturation { if (s < 0.0 || s > 1.0) throw new IllegalArgumentException("Saturation must be 0.0-1.0: " + s); } }
   record Value(double v) { public Value { if (v < 0.0 || v > 1.0) throw new IllegalArgumentException("Value must be 0.0-1.0: " + v); } }
 
-  record Opacity(double o) { public Opacity { if (o < 0.0 || o > 1.0) throw new IllegalArgumentException("Opacity must be 0.0-1.0: " + o); } }
+  record Opacity(float o) { public Opacity { if (o < 0.0 || o > 1.0) throw new IllegalArgumentException("Opacity must be 0.0-1.0: " + o); } }
   record KeyStroke(String k){}
   record Time(long t){}
 
@@ -32,13 +32,13 @@ public interface Types {
   }
 
   record Position(X x, Y y) { 
-    Position(Scalar x, Scalar y) { this(new X(x.toInt()), new Y(y.toInt())); } 
-    Position(Vector2 v) { this(v.x(), v.y()); } 
+    public Position(Scalar x, Scalar y) { this(new X(x.toInt()), new Y(y.toInt())); } 
+    public Position(Vector2 v) { this(v.x(), v.y()); } 
   }
 
   record Dimension(Width w, Height h) {
-    Dimension(Scalar x, Scalar y) { this(new Width(x.toInt()), new Height(y.toInt())); } 
-    Dimension(Vector2 v) { this(v.x(), v.y()); } 
+    public Dimension(Scalar x, Scalar y) { this(new Width(x.toInt()), new Height(y.toInt())); } 
+    public Dimension(Vector2 v) { this(v.x(), v.y()); } 
   }
 
   public record LerpScalar(Scalar start, Scalar end, Time duration, Easing easing) {

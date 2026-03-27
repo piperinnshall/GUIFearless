@@ -4,9 +4,10 @@ import com.piperinnshall.fluentguijava.fearless.Types.Color;
 import com.piperinnshall.fluentguijava.fearless.Types.Dimension;
 import com.piperinnshall.fluentguijava.fearless.Types.KeyStroke;
 import com.piperinnshall.fluentguijava.fearless.Types.Position;
+import com.piperinnshall.fluentguijava.fearless.Types.Time;
 
 public interface Ctx {
-  long elapsed();
+  Time elapsed();
   Dimension screenSize();
   Dimension panelSize();
 

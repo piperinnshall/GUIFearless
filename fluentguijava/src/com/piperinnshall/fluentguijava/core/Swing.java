@@ -1,6 +1,5 @@
 package com.piperinnshall.fluentguijava.core;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -18,7 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import com.piperinnshall.fluentguijava.fearless.Types.*;
+import com.piperinnshall.fluentguijava.fearless.Types;
 import com.piperinnshall.fluentguijava.fearless.Ctx;
 import com.piperinnshall.fluentguijava.fearless.KeyBuilder;
 import com.piperinnshall.fluentguijava.fearless.MouseBuilder;
@@ -29,20 +28,26 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
     panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(stroke), stroke);
     panel.getActionMap().put(stroke, new AbstractAction() {
       public void actionPerformed(ActionEvent e) {
-        action.accept(new CKeyCtx(panel.frame().elapsed(), panel.frame().screenSize(),
-              new Vector2(panel.getWidth(), panel.getHeight()), key));
+        action.accept(new CKeyCtx(
+              new Types.Time(panel.frame().elapsed()),
+              panel.frame().screenSize(),
+              new Types.Dimension(new Types.Width(panel.getWidth()), new Types.Height(panel.getHeight())),
+              new Types.KeyStroke(key)));
       }
     });
     return this;
   }
-  @Override public KeyBuilder pressed(String key, Consumer<Ctx.Key> action) { return bind(key, key, action); }
-  @Override public KeyBuilder released(String key, Consumer<Ctx.Key> action) { return bind("released " + key, key, action); }
+  @Override public KeyBuilder pressed(Types.KeyStroke keyStroke, Consumer<Ctx.Key> action) { return bind(keyStroke.k(), keyStroke.k(), action); }
+  @Override public KeyBuilder released(Types.KeyStroke keyStroke, Consumer<Ctx.Key> action) { return bind("released " + keyStroke.k(), keyStroke.k(), action); }
 }
 
 record CMouseBuilder(CPanel panel) implements MouseBuilder {
   private Ctx.Mouse ctx(MouseEvent e) {
-    return new CMouseCtx(panel.frame().elapsed(), new Vector2(e.getX(), e.getY()), panel.frame().screenSize(),
-        new Vector2(panel.getWidth(), panel.getHeight()));
+    return new CMouseCtx(
+        new Types.Time(panel.frame().elapsed()),
+        new Types.Position(new Types.X(e.getX()), new Types.Y(e.getY())),
+        panel.frame().screenSize(),
+        new Types.Dimension(new Types.Width(panel.getWidth()), new Types.Height(panel.getHeight())));
   }
   private MouseBuilder mouse(MouseAdapter a) { panel.addMouseListener(a); return this; }
   private MouseBuilder motion(MouseMotionAdapter a) { panel.addMouseMotionListener(a); return this; }
@@ -55,21 +60,23 @@ record CMouseBuilder(CPanel panel) implements MouseBuilder {
   @Override public MouseBuilder exited(Consumer<Ctx.Mouse> action) { return mouse(new MouseAdapter() { public void mouseExited(MouseEvent e) { action.accept(ctx(e)); } }); }
 }
 
-record CGraphicsCtx(Graphics2D g2d, long elapsed, Vector2 screenSize, Vector2 panelSize) implements Ctx.Graphics {
-  private static int r(float v) { return Math.round(v); }
-  @Override public Ctx.Graphics rect(Vector2 pos, Vector2 dim) { g2d.fillRect(r(pos.x()), r(pos.y()), r(dim.x()), r(dim.y())); return this; }
-  @Override public Ctx.Graphics oval(Vector2 pos, Vector2 dim) { g2d.fillOval(r(pos.x()), r(pos.y()), r(dim.x()), r(dim.y())); return this; }
-  @Override public Ctx.Graphics line(Vector2 from, Vector2 to) { g2d.drawLine(r(from.x()), r(from.y()), r(to.x()), r(to.y())); return this; }
-  @Override public Ctx.Graphics color(Vector3 rgb) { g2d.setColor(Awt.color(rgb)); return this; }
-  @Override public Ctx.Graphics color(int hex) { g2d.setColor(new Color(hex)); return this; }
+record CGraphicsCtx(Graphics2D g2d, Types.Time elapsed, Types.Dimension screenSize, Types.Dimension panelSize) implements Ctx.Graphics {
+  private static int x(Types.Position x) { return x.x().x(); }
+  private static int y(Types.Position y) { return y.y().y(); }
+  private static int w(Types.Dimension w) { return w.w().w(); }
+  private static int h(Types.Dimension h) { return h.h().h(); }
+  @Override public Ctx.Graphics rect(Types.Position pos, Types.Dimension dim) { g2d.fillRect(x(pos),y(pos),w(dim),h(dim)); return this; }
+  @Override public Ctx.Graphics oval(Types.Position pos, Types.Dimension dim) { g2d.fillOval(x(pos),y(pos),w(dim),h(dim)); return this; }
+  @Override public Ctx.Graphics line(Types.Position from, Types.Position to) { g2d.drawLine(x(from),y(from),x(to),y(to)); return this; }
+  @Override public Ctx.Graphics color(Types.Color color) { g2d.setColor(Awt.color(color)); return this; }
 }
-record CMouseCtx(long elapsed, Vector2 pos, Vector2 screenSize, Vector2 panelSize) implements Ctx.Mouse {}
-record CKeyCtx(long elapsed, Vector2 screenSize, Vector2 panelSize, String key) implements Ctx.Key {}
+record CMouseCtx(Types.Time elapsed, Types.Position position, Types.Dimension screenSize, Types.Dimension panelSize) implements Ctx.Mouse {}
+record CKeyCtx(Types.Time elapsed, Types.Dimension screenSize, Types.Dimension panelSize, Types.KeyStroke keyStroke) implements Ctx.Key {}
 
 class CFrame extends JFrame {
   private long elapsed;
-  private final Vector2 screenSize;
-  CFrame(String title, Vector2 screenSize, CompletableFuture<RuntimeException> done) {
+  private final Types.Dimension screenSize;
+  CFrame(String title, Types.Dimension screenSize, CompletableFuture<RuntimeException> done) {
     super(title);
     this.screenSize = screenSize;
     addWindowListener(new WindowAdapter() { public void windowClosed(WindowEvent e) { done.complete(null); } });
@@ -77,7 +84,7 @@ class CFrame extends JFrame {
   }
   void tick(long elapsed) { this.elapsed = elapsed; repaint(); }
   long elapsed() { return elapsed; }
-  Vector2 screenSize() { return screenSize; }
+  Types.Dimension screenSize() { return screenSize; }
 }
 
 class CPanel extends JPanel {
@@ -86,7 +93,11 @@ class CPanel extends JPanel {
   CPanel(Scope<Ctx.Graphics> paintable, CFrame frame) { this.paintable = paintable; this.frame = frame; }
   CFrame frame() { return frame; }
   @Override public void paintComponent(Graphics g) {
-    super.paintComponent(g);
-    paintable.run(new CGraphicsCtx((Graphics2D) g, frame.elapsed(), frame.screenSize(), new Vector2(getWidth(), getHeight())));
+  super.paintComponent(g);
+  paintable.run(new CGraphicsCtx(
+        (Graphics2D) g,
+        new Types.Time(frame.elapsed()),
+        frame.screenSize(),
+        new Types.Dimension(new Types.Width(getWidth()), new Types.Height(getHeight()))));
   }
 }
