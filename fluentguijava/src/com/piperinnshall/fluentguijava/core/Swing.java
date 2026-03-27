@@ -18,12 +18,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import com.piperinnshall.fluentguijava.builder.Ctx;
-import com.piperinnshall.fluentguijava.builder.KeyBuilder;
-import com.piperinnshall.fluentguijava.builder.MouseBuilder;
-import com.piperinnshall.fluentguijava.builder.Scope;
-import com.piperinnshall.fluentguijava.vec.Vec2;
-import com.piperinnshall.fluentguijava.vec.Vec3;
+import com.piperinnshall.fluentguijava.fearless.Types.*;
+import com.piperinnshall.fluentguijava.fearless.Ctx;
+import com.piperinnshall.fluentguijava.fearless.KeyBuilder;
+import com.piperinnshall.fluentguijava.fearless.MouseBuilder;
+import com.piperinnshall.fluentguijava.fearless.Scope;
 
 record CKeyBuilder(CPanel panel) implements KeyBuilder {
   private KeyBuilder bind(String stroke, String key, Consumer<Ctx.Key> action) {

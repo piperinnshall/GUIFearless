@@ -1,8 +1,8 @@
 package com.piperinnshall.fluentguijava.demo;
 
 import com.piperinnshall.fluentguijava.core.*;
-import com.piperinnshall.fluentguijava.builder.*;
-import com.piperinnshall.fluentguijava.vec.*;
+import com.piperinnshall.fluentguijava.fearless.*;
+import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 public class ComponentDemo {
 

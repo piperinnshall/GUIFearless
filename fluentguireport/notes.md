@@ -56,12 +56,23 @@ queue of event?
 - Step 3: Somehow we need a label  and text area that represent the whole
   frame.  
 
+Panel with abs pos
+3 elements each a panel
+Transperant panels/elements
+
 # TODO
 
 - Design combinator interface generator for borderLayout
 - Decide and document: super.paintComponent before or after paintable.run
 - Layout manager on root panel so child panels are visible 
 - Own panel and frame resolution correctly.
+- Rebuild and swap - root scene recompute
+
+- Fast version of lenSq
+- Work out uses of float in vec2/3 
+- Implement Color etc.
+
+- What layouts do we want
 
 # DONE
 
@@ -84,7 +95,7 @@ queue of event?
 - Panels can nest arbitrarily deep
 - Panels and frames are now separated by layout
 - Layout builders on FluentGUI class
-- Minimize duplication with generic polymorphism tricks
+- Minimize duplication with self referential generic polymorphism tricks
 
 # DOCUMENTATION
 

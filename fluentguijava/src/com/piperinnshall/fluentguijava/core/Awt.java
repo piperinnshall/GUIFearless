@@ -4,8 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import com.piperinnshall.fluentguijava.vec.Vec2;
-import com.piperinnshall.fluentguijava.vec.Vec3;
+import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 interface Awt {
   static Dimension dimension(Vec2 v) { return new Dimension(Math.round(v.x()), Math.round(v.y())); }

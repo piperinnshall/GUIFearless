@@ -1,4 +1,4 @@
-package com.piperinnshall.fluentguijava.lerp;
+package com.piperinnshall.fluentguijava.fearless;
 
 /**
  * Easing functions from https://easings.net/

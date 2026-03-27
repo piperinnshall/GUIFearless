@@ -1,6 +1,6 @@
-package com.piperinnshall.fluentguijava.builder;
+package com.piperinnshall.fluentguijava.fearless;
 
-import com.piperinnshall.fluentguijava.vec.Vec2;
+import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 public interface FrameBuilder {
   interface Frame<T> {

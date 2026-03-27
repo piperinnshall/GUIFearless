@@ -9,20 +9,19 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Timer;
 
-import com.piperinnshall.fluentguijava.builder.Ctx;
-import com.piperinnshall.fluentguijava.builder.FrameBuilder;
-import com.piperinnshall.fluentguijava.builder.KeyBuilder;
-import com.piperinnshall.fluentguijava.builder.MouseBuilder;
-import com.piperinnshall.fluentguijava.builder.PanelBuilder;
-import com.piperinnshall.fluentguijava.builder.Scope;
-import com.piperinnshall.fluentguijava.vec.Vec2;
-import com.piperinnshall.fluentguijava.vec.Vec3;
+import com.piperinnshall.fluentguijava.fearless.Types.*;
+import com.piperinnshall.fluentguijava.fearless.Ctx;
+import com.piperinnshall.fluentguijava.fearless.FrameBuilder;
+import com.piperinnshall.fluentguijava.fearless.KeyBuilder;
+import com.piperinnshall.fluentguijava.fearless.MouseBuilder;
+import com.piperinnshall.fluentguijava.fearless.PanelBuilder;
+import com.piperinnshall.fluentguijava.fearless.Scope;
 
 @SuppressWarnings("unchecked")
 abstract class CPanelBuilder<T extends CPanelBuilder<T>> {
   Vec2 dimension = new Vec2(100, 100);
   Color col = Color.BLACK;
-  String constraint;
+  String constraint = BorderLayout.CENTER;
   Scope<Ctx.Graphics> paintable = Scope.nop();
   Scope<KeyBuilder> keyScope = Scope.nop();
   Scope<MouseBuilder> mouseScope = Scope.nop();

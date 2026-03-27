@@ -1,4 +1,4 @@
-package com.piperinnshall.fluentguijava.builder;
+package com.piperinnshall.fluentguijava.fearless;
 
 @FunctionalInterface
 public interface Scope<B> {

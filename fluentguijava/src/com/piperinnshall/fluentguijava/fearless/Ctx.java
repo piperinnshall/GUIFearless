@@ -1,7 +1,6 @@
-package com.piperinnshall.fluentguijava.builder;
+package com.piperinnshall.fluentguijava.fearless;
 
-import com.piperinnshall.fluentguijava.vec.Vec2;
-import com.piperinnshall.fluentguijava.vec.Vec3;
+import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 public interface Ctx {
   long elapsed();

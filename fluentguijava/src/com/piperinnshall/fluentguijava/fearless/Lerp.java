@@ -1,6 +1,6 @@
-package com.piperinnshall.fluentguijava.lerp;
+package com.piperinnshall.fluentguijava.fearless;
 
-import com.piperinnshall.fluentguijava.vec.Vec;
+import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 /*
  * A = start position.

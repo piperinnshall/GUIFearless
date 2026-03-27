@@ -4,8 +4,8 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.swing.SwingUtilities;
 
-import com.piperinnshall.fluentguijava.builder.FrameBuilder;
-import com.piperinnshall.fluentguijava.builder.Scope;
+import com.piperinnshall.fluentguijava.fearless.Scope;
+import com.piperinnshall.fluentguijava.fearless.FrameBuilder;
 
 public class FluentGUI {
   public void flow(String title, int fps, Scope<FrameBuilder.Flow> frame) {

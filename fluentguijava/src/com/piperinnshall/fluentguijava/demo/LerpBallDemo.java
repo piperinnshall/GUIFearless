@@ -1,9 +1,8 @@
 package com.piperinnshall.fluentguijava.demo;
 
-import com.piperinnshall.fluentguijava.core.*;
-import com.piperinnshall.fluentguijava.builder.*;
-import com.piperinnshall.fluentguijava.lerp.*;
-import com.piperinnshall.fluentguijava.vec.*;
+import com.piperinnshall.fluentguijava.core.FluentGUI;
+import com.piperinnshall.fluentguijava.fearless.*;
+import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 record LerpBallModel(Vec2 radius, float duration) {}
 
