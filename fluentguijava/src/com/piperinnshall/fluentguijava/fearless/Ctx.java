@@ -1,25 +1,27 @@
 package com.piperinnshall.fluentguijava.fearless;
 
-import com.piperinnshall.fluentguijava.fearless.Types.*;
+import com.piperinnshall.fluentguijava.fearless.Types.Color;
+import com.piperinnshall.fluentguijava.fearless.Types.Dimension;
+import com.piperinnshall.fluentguijava.fearless.Types.KeyStroke;
+import com.piperinnshall.fluentguijava.fearless.Types.Position;
 
 public interface Ctx {
   long elapsed();
-  Vec2 screenSize();
-  Vec2 panelSize();
+  Dimension screenSize();
+  Dimension panelSize();
 
   interface Mouse extends Ctx {
-    Vec2 pos();
+    Position position();
   }
 
   interface Key extends Ctx {
-    String key();
+    KeyStroke keyStroke();
   }
 
   interface Graphics extends Ctx {
-    Graphics rect(Vec2 position, Vec2 dimension);
-    Graphics oval(Vec2 position, Vec2 dimension);
-    Graphics line(Vec2 from, Vec2 to);
-    Graphics color(int hex);
-    Graphics color(Vec3 rgb);
+    Graphics rect(Position position, Dimension dimension);
+    Graphics oval(Position position, Dimension dimension);
+    Graphics line(Position from, Position to);
+    Graphics color(Color color);
   }
 }

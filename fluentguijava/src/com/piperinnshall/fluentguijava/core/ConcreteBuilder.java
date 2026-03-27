@@ -1,6 +1,5 @@
 package com.piperinnshall.fluentguijava.core;
 
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.swing.Timer;
 
-import com.piperinnshall.fluentguijava.fearless.Types.*;
+import com.piperinnshall.fluentguijava.fearless.Types;
 import com.piperinnshall.fluentguijava.fearless.Ctx;
 import com.piperinnshall.fluentguijava.fearless.FrameBuilder;
 import com.piperinnshall.fluentguijava.fearless.KeyBuilder;
@@ -19,36 +18,37 @@ import com.piperinnshall.fluentguijava.fearless.Scope;
 
 @SuppressWarnings("unchecked")
 abstract class CPanelBuilder<T extends CPanelBuilder<T>> {
-  Vec2 dimension = new Vec2(100, 100);
-  Color col = Color.BLACK;
+  Types.Dimension dimension = new Types.Dimension(new Types.Width(100), new Types.Height(100));
+  Types.Color color = new Types.Color(new Types.Red(0), new Types.Green(0), new Types.Blue(0));
   String constraint = BorderLayout.CENTER;
   Scope<Ctx.Graphics> paintable = Scope.nop();
   Scope<KeyBuilder> keyScope = Scope.nop();
   Scope<MouseBuilder> mouseScope = Scope.nop();
   List<CPanelBuilder<?>> children = new ArrayList<>();
 
+  abstract T self();
   abstract CPanel buildPanel(CFrame frame);
   protected CPanel basePanel(CFrame frame) {
     var panel = new CPanel(paintable, frame);
     panel.setPreferredSize(Awt.dimension(dimension));
-    panel.setBackground(col);
+    panel.setBackground(Awt.color(color));
     keyScope.run(new CKeyBuilder(panel));
     mouseScope.run(new CMouseBuilder(panel));
     return panel;
   }
-  public T size(Vec2 dimension) { this.dimension = dimension; return (T) this; }
-  public T background(Vec3 rgb) { this.col = Awt.color(rgb); return (T) this; }
-  public T paintable(Scope<Ctx.Graphics> scope) { this.paintable = scope; return (T) this; }
-  public T onKey(Scope<KeyBuilder> scope) { this.keyScope = scope; return (T) this; }
-  public T onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return (T) this; }
-  public T flow(Scope<PanelBuilder.Flow> scope) { var pb = new CPanelBuilderFlow(); scope.run(pb); children.add(pb); return (T) this; }
-  public T border(Scope<PanelBuilder.Border> scope) { var pb = new CPanelBuilderBorder(); scope.run(pb); children.add(pb); return (T) this; }
+  public T size(Types.Dimension dimension) { this.dimension = dimension; return self(); }
+  public T background(Types.Color color) { this.color = color; return self(); }
+  public T paintable(Scope<Ctx.Graphics> scope) { this.paintable = scope; return self(); }
+  public T onKey(Scope<KeyBuilder> scope) { this.keyScope = scope; return self(); }
+  public T onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return self(); }
+  public T flow(Scope<PanelBuilder.Flow> scope) { var pb = new CPanelBuilderFlow(); scope.run(pb); children.add(pb); return self(); }
+  public T border(Scope<PanelBuilder.Border> scope) { var pb = new CPanelBuilderBorder(); scope.run(pb); children.add(pb); return self(); }
 }
 
 @SuppressWarnings("unchecked")
 abstract class CFrameBuilder<T extends CFrameBuilder<T>> extends CPanelBuilder<T> {
-  Vec2 location;
-  Vec2 frameSize;
+  Types.Position location;
+  Types.Dimension frameSize;
   boolean resizable = false;
   boolean undecorated = false;
   boolean maximized = false;
@@ -84,12 +84,12 @@ abstract class CFrameBuilder<T extends CFrameBuilder<T>> extends CPanelBuilder<T
     frame.setSize(Awt.dimension(size));
     frame.setLocation(0, 0);
   }
-  @Override public T size(Vec2 dimension) { this.frameSize = dimension; return (T) this; }
-  public T location(Vec2 location) { this.location = location; return (T) this; }
-  public T resizable() { this.resizable = true; return (T) this; }
-  public T undecorated() { this.undecorated = true; return (T) this; }
-  public T maximized() { this.maximized = true; return (T) this; }
-  public T opacity(float opacity) { this.opacity = opacity; return (T) this; }
+  @Override public T size(Vec2 dimension) { this.frameSize = dimension; return self(); }
+  public T location(Vec2 location) { this.location = location; return self(); }
+  public T resizable() { this.resizable = true; return self(); }
+  public T undecorated() { this.undecorated = true; return self(); }
+  public T maximized() { this.maximized = true; return self(); }
+  public T opacity(float opacity) { this.opacity = opacity; return self(); }
 
 }
 

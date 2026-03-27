@@ -30,7 +30,7 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
     panel.getActionMap().put(stroke, new AbstractAction() {
       public void actionPerformed(ActionEvent e) {
         action.accept(new CKeyCtx(panel.frame().elapsed(), panel.frame().screenSize(),
-              new Vec2(panel.getWidth(), panel.getHeight()), key));
+              new Vector2(panel.getWidth(), panel.getHeight()), key));
       }
     });
     return this;
@@ -41,8 +41,8 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
 
 record CMouseBuilder(CPanel panel) implements MouseBuilder {
   private Ctx.Mouse ctx(MouseEvent e) {
-    return new CMouseCtx(panel.frame().elapsed(), new Vec2(e.getX(), e.getY()), panel.frame().screenSize(),
-        new Vec2(panel.getWidth(), panel.getHeight()));
+    return new CMouseCtx(panel.frame().elapsed(), new Vector2(e.getX(), e.getY()), panel.frame().screenSize(),
+        new Vector2(panel.getWidth(), panel.getHeight()));
   }
   private MouseBuilder mouse(MouseAdapter a) { panel.addMouseListener(a); return this; }
   private MouseBuilder motion(MouseMotionAdapter a) { panel.addMouseMotionListener(a); return this; }
@@ -55,21 +55,21 @@ record CMouseBuilder(CPanel panel) implements MouseBuilder {
   @Override public MouseBuilder exited(Consumer<Ctx.Mouse> action) { return mouse(new MouseAdapter() { public void mouseExited(MouseEvent e) { action.accept(ctx(e)); } }); }
 }
 
-record CGraphicsCtx(Graphics2D g2d, long elapsed, Vec2 screenSize, Vec2 panelSize) implements Ctx.Graphics {
+record CGraphicsCtx(Graphics2D g2d, long elapsed, Vector2 screenSize, Vector2 panelSize) implements Ctx.Graphics {
   private static int r(float v) { return Math.round(v); }
-  @Override public Ctx.Graphics rect(Vec2 pos, Vec2 dim) { g2d.fillRect(r(pos.x()), r(pos.y()), r(dim.x()), r(dim.y())); return this; }
-  @Override public Ctx.Graphics oval(Vec2 pos, Vec2 dim) { g2d.fillOval(r(pos.x()), r(pos.y()), r(dim.x()), r(dim.y())); return this; }
-  @Override public Ctx.Graphics line(Vec2 from, Vec2 to) { g2d.drawLine(r(from.x()), r(from.y()), r(to.x()), r(to.y())); return this; }
-  @Override public Ctx.Graphics color(Vec3 rgb) { g2d.setColor(Awt.color(rgb)); return this; }
+  @Override public Ctx.Graphics rect(Vector2 pos, Vector2 dim) { g2d.fillRect(r(pos.x()), r(pos.y()), r(dim.x()), r(dim.y())); return this; }
+  @Override public Ctx.Graphics oval(Vector2 pos, Vector2 dim) { g2d.fillOval(r(pos.x()), r(pos.y()), r(dim.x()), r(dim.y())); return this; }
+  @Override public Ctx.Graphics line(Vector2 from, Vector2 to) { g2d.drawLine(r(from.x()), r(from.y()), r(to.x()), r(to.y())); return this; }
+  @Override public Ctx.Graphics color(Vector3 rgb) { g2d.setColor(Awt.color(rgb)); return this; }
   @Override public Ctx.Graphics color(int hex) { g2d.setColor(new Color(hex)); return this; }
 }
-record CMouseCtx(long elapsed, Vec2 pos, Vec2 screenSize, Vec2 panelSize) implements Ctx.Mouse {}
-record CKeyCtx(long elapsed, Vec2 screenSize, Vec2 panelSize, String key) implements Ctx.Key {}
+record CMouseCtx(long elapsed, Vector2 pos, Vector2 screenSize, Vector2 panelSize) implements Ctx.Mouse {}
+record CKeyCtx(long elapsed, Vector2 screenSize, Vector2 panelSize, String key) implements Ctx.Key {}
 
 class CFrame extends JFrame {
   private long elapsed;
-  private final Vec2 screenSize;
-  CFrame(String title, Vec2 screenSize, CompletableFuture<RuntimeException> done) {
+  private final Vector2 screenSize;
+  CFrame(String title, Vector2 screenSize, CompletableFuture<RuntimeException> done) {
     super(title);
     this.screenSize = screenSize;
     addWindowListener(new WindowAdapter() { public void windowClosed(WindowEvent e) { done.complete(null); } });
@@ -77,7 +77,7 @@ class CFrame extends JFrame {
   }
   void tick(long elapsed) { this.elapsed = elapsed; repaint(); }
   long elapsed() { return elapsed; }
-  Vec2 screenSize() { return screenSize; }
+  Vector2 screenSize() { return screenSize; }
 }
 
 class CPanel extends JPanel {
@@ -87,6 +87,6 @@ class CPanel extends JPanel {
   CFrame frame() { return frame; }
   @Override public void paintComponent(Graphics g) {
     super.paintComponent(g);
-    paintable.run(new CGraphicsCtx((Graphics2D) g, frame.elapsed(), frame.screenSize(), new Vec2(getWidth(), getHeight())));
+    paintable.run(new CGraphicsCtx((Graphics2D) g, frame.elapsed(), frame.screenSize(), new Vector2(getWidth(), getHeight())));
   }
 }
