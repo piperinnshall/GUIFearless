@@ -29,9 +29,9 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
     panel.getActionMap().put(stroke, new AbstractAction() {
       public void actionPerformed(ActionEvent e) {
         action.accept(new CKeyCtx(
-              new Types.Time(panel.frame().elapsed()),
+              panel.frame().elapsed(),
               panel.frame().screenSize(),
-              new Types.Dimension(new Types.Width(panel.getWidth()), new Types.Height(panel.getHeight())),
+              panel.panelSize(),
               new Types.KeyStroke(key)));
       }
     });
@@ -44,10 +44,10 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
 record CMouseBuilder(CPanel panel) implements MouseBuilder {
   private Ctx.Mouse ctx(MouseEvent e) {
     return new CMouseCtx(
-        new Types.Time(panel.frame().elapsed()),
+        panel.frame().elapsed(),
         new Types.Position(new Types.X(e.getX()), new Types.Y(e.getY())),
         panel.frame().screenSize(),
-        new Types.Dimension(new Types.Width(panel.getWidth()), new Types.Height(panel.getHeight())));
+        panel.panelSize());
   }
   private MouseBuilder mouse(MouseAdapter a) { panel.addMouseListener(a); return this; }
   private MouseBuilder motion(MouseMotionAdapter a) { panel.addMouseMotionListener(a); return this; }
@@ -74,7 +74,7 @@ record CMouseCtx(Types.Time elapsed, Types.Position position, Types.Dimension sc
 record CKeyCtx(Types.Time elapsed, Types.Dimension screenSize, Types.Dimension panelSize, Types.KeyStroke keyStroke) implements Ctx.Key {}
 
 class CFrame extends JFrame {
-  private long elapsed;
+  private Types.Time elapsed;
   private final Types.Dimension screenSize;
   CFrame(String title, Types.Dimension screenSize, CompletableFuture<RuntimeException> done) {
     super(title);
@@ -82,22 +82,20 @@ class CFrame extends JFrame {
     addWindowListener(new WindowAdapter() { public void windowClosed(WindowEvent e) { done.complete(null); } });
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
   }
-  void tick(long elapsed) { this.elapsed = elapsed; repaint(); }
-  long elapsed() { return elapsed; }
+  void tick(Types.Time elapsed) { this.elapsed = elapsed; repaint(); }
+  Types.Time elapsed() { return elapsed; }
   Types.Dimension screenSize() { return screenSize; }
 }
-
 class CPanel extends JPanel {
   private final CFrame frame;
   private final Scope<Ctx.Graphics> paintable;
   CPanel(Scope<Ctx.Graphics> paintable, CFrame frame) { this.paintable = paintable; this.frame = frame; }
   CFrame frame() { return frame; }
+  Types.Dimension panelSize() {
+    return new Types.Dimension(new Types.Width(getWidth()), new Types.Height(getHeight()));
+  }
   @Override public void paintComponent(Graphics g) {
   super.paintComponent(g);
-  paintable.run(new CGraphicsCtx(
-        (Graphics2D) g,
-        new Types.Time(frame.elapsed()),
-        frame.screenSize(),
-        new Types.Dimension(new Types.Width(getWidth()), new Types.Height(getHeight()))));
+  paintable.run(new CGraphicsCtx((Graphics2D) g, frame.elapsed(), frame.screenSize(), panelSize()));
   }
 }

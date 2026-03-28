@@ -28,6 +28,7 @@ queue of event?
 - [x] Fix map to forEach
 - [x] Fix screensize and elapsed in panel
 - [x] Top level has rootPanel that repaints everything
+- [x] Key and mouse top level.
 - [ ] Cant move between frames
 - [ ] Resolve should just be a function that does something
 - [ ] Maybe has a Ctx? The exit Ctx that tells us how we exited
@@ -42,7 +43,6 @@ queue of event?
 - [ ] Is focus only keys? or mouse.
 - [ ] Do panels focus when you click.
 - [ ] Can click work wihtout requesting focus?
-- [ ] Key and mouse top level.
 - [ ] Find a way to have in addition to the list of panels, where is the mouse in each panel.
 - [ ] Global context list of rich panel can ask for mouse info, size of panel, know if mouse is in the panel by bound checks or implicit
 - [ ] Any focusable thing like text area also triggers binds. try to expose the boolean choice.
@@ -69,8 +69,6 @@ Transperant panels/elements
 - Rebuild and swap - root scene recompute
 
 - Fast version of lenSq
-- Work out uses of float in vec2/3 
-- Implement Color etc.
 
 - What layouts do we want
 
@@ -96,8 +94,23 @@ Transperant panels/elements
 - Panels and frames are now separated by layout
 - Layout builders on FluentGUI class
 - Minimize duplication with self referential generic polymorphism tricks
+- Use setContentPane: JFrame.add(comp) delegates to getContentPane().add(comp)
+- Work out uses of float in vec2/3 
+- Implement Color etc.
+- Move key and mouse to top pane
 
 # DOCUMENTATION
 
 - Size and location override maximized
+- Not using java maximize, broken on MacOs
 - opacity requires undecorated
+- Every call replaces the last
+
+# Global Mouse Issues:
+
+Screen of 100 pixels
+2 panels, 50 px wide
+vertically split
+`drawSquare(0,0,10,10)`
+clicking on the square returns: 50, 0.
+So mouse needs to be per panel, while key presses are global.

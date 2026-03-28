@@ -6,9 +6,7 @@ public interface PanelBuilder {
   interface Panel<T> {
     T size(Dimension dimension);
     T background(Color color);
-    T paintable(Scope<Ctx.Graphics> scope);
-    T onKey(Scope<KeyBuilder> scope);
-    T onMouse(Scope<MouseBuilder> scope);
+    T paint(Scope<Ctx.Graphics> scope);
     T flow(Scope<PanelBuilder.Flow> scope);
     T border(Scope<PanelBuilder.Border> scope);
   }
