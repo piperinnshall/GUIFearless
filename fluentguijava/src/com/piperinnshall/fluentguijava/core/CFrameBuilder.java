@@ -1,8 +1,10 @@
 package com.piperinnshall.fluentguijava.core;
 import java.awt.BorderLayout;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import javax.swing.Timer;
 
@@ -14,36 +16,37 @@ import com.piperinnshall.fluentguijava.fearless.Types;
 
 class CFrameBuilder implements FrameBuilder {
   Types.Position location = null;
-  boolean resizable = false;
   boolean undecorated = false;
-  boolean maximized = false;
   Types.Opacity opacity = new Types.Opacity(1);
   Scope<KeyBuilder> keyScope = Scope.nop();
   private final Types.TimeNanos startTime = new Types.TimeNanos(System.nanoTime());
   private final List<APanelBuilder<?>> children = new ArrayList<>();
 
-
-  public void start(String title, int fps, CompletableFuture<RuntimeException> done) {
+  public void start(String title, int fps, boolean maximized, boolean resizable, CompletableFuture<RuntimeException> done) {
     if (fps <= 0) throw new IllegalArgumentException("fps must be > 0, got: " + fps);
     Types.Dimension screenSize = resolveScreenSize();
-    var frame = new CFrame(title, screenSize, done);
-    var queue = new SerialQueue(e -> {
-      frame.dispatchEvent(new java.awt.event.WindowEvent(frame, java.awt.event.WindowEvent.WINDOW_CLOSING));
-      done.complete(e);
-    });
-    var topPane = buildTopPane(frame, queue);
-    frame.setContentPane(topPane);
-    frame.setUndecorated(undecorated);
-    frame.setResizable(resizable);
-    frame.setOpacity(opacity.o());
-    frame.setFocusable(true);
-    frame.pack();
-    frame.setVisible(true);
-    if (maximized) maximize(frame, screenSize);
-    if (location != null) { frame.setLocation(Awt.point(location)); }
-    else { frame.setLocationRelativeTo(null); }
+    var o = new Object() {
+      Consumer<RuntimeException> c = e -> {
+        this.f.dispatchEvent(new WindowEvent(this.f, WindowEvent.WINDOW_CLOSING));
+        done.complete(e);
+      };
+      volatile SerialQueue exe = new SerialQueue(c);
+      CFrame f = new CFrame(title, screenSize, done);
+      CPanel p = buildTopPane(f, exe);
+    };
+    o.f.setContentPane(o.p);
+    o.f.setUndecorated(undecorated);
+    o.f.setResizable(resizable);
+    o.f.setOpacity(opacity.o());
+    o.f.setFocusable(true);
+    o.f.pack();
+    o.f.setVisible(true);
+    if (maximized) maximize(o.f, screenSize);
+    if (location != null) { o.f.setLocation(Awt.point(location)); }
+    else { o.f.setLocationRelativeTo(null); }
+
     int delayMs = Math.round(1000.0f / fps);
-    new Timer(delayMs, _ -> frame.tick(new Types.TimeNanos(System.nanoTime() - startTime.nanos()))).start();
+    new Timer(delayMs, _ -> o.f.tick(new Types.TimeNanos(System.nanoTime() - startTime.nanos()))).start();
   }
 
   private CPanel buildTopPane(CFrame frame, SerialQueue queue) {
@@ -54,7 +57,6 @@ class CFrameBuilder implements FrameBuilder {
     for (var child : children) { panel.add(child.buildPanel(frame, queue)); }
     return panel;
   }
-
   private static Types.Dimension resolveScreenSize() {
     var b = java.awt.GraphicsEnvironment
       .getLocalGraphicsEnvironment()
@@ -69,8 +71,6 @@ class CFrameBuilder implements FrameBuilder {
   }
 
   @Override public FrameBuilder location(Types.Position location) { this.location = location; return this; }
-  @Override public FrameBuilder maximized() { this.maximized = true; return this; }
-  @Override public FrameBuilder resizable() { this.resizable = true; return this; }
   @Override public FrameBuilder undecorated(Types.Opacity opacity) { this.undecorated = true; this.opacity = opacity; return this; }
   @Override public FrameBuilder onKey(Scope<KeyBuilder> scope) { this.keyScope = scope; return this; }
   @Override public FrameBuilder flow(Scope<PanelBuilder.Flow> scope) { var pb = new CPanelBuilderFlow(); scope.run(pb); children.add(pb); return this; }

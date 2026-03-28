@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 import com.piperinnshall.fluentguijava.fearless.Types;
 import com.piperinnshall.fluentguijava.fearless.Ctx;
@@ -52,6 +53,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   public T flow(Scope<PanelBuilder.Flow> scope) { var pb = new CPanelBuilderFlow(); scope.run(pb); children.add(pb); return self(); }
   public T border(Scope<PanelBuilder.Border> scope) { var pb = new CPanelBuilderBorder(); scope.run(pb); children.add(pb); return self(); }
   public T onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return self(); }
+
   public T button(Types.Text text, Runnable r, Slot<Swing.Button> s) {
     buttons.add((parent, queue) -> {
       var jb = new JButton(text.t());
@@ -61,11 +63,22 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
     });
     return self();
   }
+
+  public T label(Types.Text text, Slot<Swing.Label> s) {
+    rs.add(parent -> {
+      var jl = new JLabel(text.t());
+      jl.setOpaque(true);
+      parent.add(jl);
+    });
+    return self();
+  }
 }
+
 class CPanelBuilderFlow extends APanelBuilder<CPanelBuilderFlow> implements PanelBuilder.Flow {
   @Override LayoutManager layout() { return new FlowLayout(); }
   @Override CPanelBuilderFlow self() { return this; }
 }
+
 class CPanelBuilderBorder extends APanelBuilder<CPanelBuilderBorder> implements PanelBuilder.Border {
   @Override LayoutManager layout() { return new BorderLayout(); }
   @Override CPanelBuilderBorder self() { return this; }
@@ -82,4 +95,4 @@ class CPanelBuilderBorder extends APanelBuilder<CPanelBuilderBorder> implements 
   @Override public PanelBuilder.Border eastBorder(Scope<PanelBuilder.Border> scope) { var pb = new CPanelBuilderBorder(); pb.constraint = BorderLayout.EAST; scope.run(pb); children.add(pb); return this; }
   @Override public PanelBuilder.Border westBorder(Scope<PanelBuilder.Border> scope) { var pb = new CPanelBuilderBorder(); pb.constraint = BorderLayout.WEST; scope.run(pb); children.add(pb); return this; }
   @Override public PanelBuilder.Border centerBorder(Scope<PanelBuilder.Border> scope) { var pb = new CPanelBuilderBorder(); pb.constraint = BorderLayout.CENTER; scope.run(pb); children.add(pb); return this; }
-  }
+}

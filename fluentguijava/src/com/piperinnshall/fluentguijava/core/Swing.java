@@ -18,6 +18,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
@@ -130,4 +131,17 @@ class CPanel extends JPanel {
 record CButton(JButton b) implements Swing.Button {
   @Override public Types.Text text() { return new Types.Text(b.getText()); }
   @Override public void text(Types.Text text) { b.setText(text.t()); }
+
+  @Override public void foreground(Types.Color c) { b.setForeground(Awt.color(c)); }
+  @Override public void background(Types.Color c) { b.setBackground(Awt.color(c)); }
+  @Override public void opaque(boolean opaque) { b.setOpaque(opaque); }
+}
+
+record CLabel(JLabel l) implements Swing.Label {
+  @Override public Types.Text text() { return new Types.Text(l.getText()); }
+  @Override public void text(Types.Text text) { l.setText(text.t()); }
+
+  @Override public void foreground(Types.Color c) { l.setForeground(Awt.color(c)); }
+  @Override public void background(Types.Color c) { l.setBackground(Awt.color(c)); }
+  @Override public void opaque(boolean opaque) { l.setOpaque(opaque); }
 }
