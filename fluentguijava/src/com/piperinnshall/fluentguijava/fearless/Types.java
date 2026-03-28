@@ -22,6 +22,8 @@ public interface Types {
   record TimeNanos(long nanos){}
   record TimeSeconds(long seconds){}
 
+  record Text(String t) {}
+
   record Scalar(double s) {
     public Scalar { if (Double.isNaN(s) || Double.isInfinite(s)) throw new IllegalArgumentException("Scalar must be finite: " + s); }
     Scalar add(Scalar o) { return new Scalar(s + o.s); }

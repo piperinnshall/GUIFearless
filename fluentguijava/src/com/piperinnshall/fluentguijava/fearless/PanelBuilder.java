@@ -1,6 +1,8 @@
 package com.piperinnshall.fluentguijava.fearless;
 
-import com.piperinnshall.fluentguijava.fearless.Types.*;
+import com.piperinnshall.fluentguijava.fearless.Types.Color;
+import com.piperinnshall.fluentguijava.fearless.Types.Dimension;
+import com.piperinnshall.fluentguijava.fearless.Swing.Button;
 
 public interface PanelBuilder {
   interface Panel<T> {
@@ -10,6 +12,8 @@ public interface PanelBuilder {
     T flow(Scope<PanelBuilder.Flow> scope);
     T border(Scope<PanelBuilder.Border> scope);
     T onMouse(Scope<MouseBuilder> scope);
+
+    T button(Types.Text text, Runnable r, Slot<Button> s);
   }
   interface Flow extends Panel<PanelBuilder.Flow> {}
   interface Border extends Panel<PanelBuilder.Border> {

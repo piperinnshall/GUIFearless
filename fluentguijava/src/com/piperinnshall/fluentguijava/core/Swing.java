@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -25,6 +26,7 @@ import com.piperinnshall.fluentguijava.fearless.Ctx;
 import com.piperinnshall.fluentguijava.fearless.KeyBuilder;
 import com.piperinnshall.fluentguijava.fearless.MouseBuilder;
 import com.piperinnshall.fluentguijava.fearless.Scope;
+import com.piperinnshall.fluentguijava.fearless.Swing;
 
 record CKeyBuilder(CPanel panel) implements KeyBuilder {
   private KeyBuilder bind(String actionKey, Supplier<Types.KeyStroke> stroke, Consumer<Ctx.Key> action) {
@@ -123,4 +125,9 @@ class CPanel extends JPanel {
     super.paintComponent(g);
     paintable.run(new CGraphicsCtx((Graphics2D) g, frame.elapsed(), frame.screenSize(), panelSize()));
   }
+}
+
+record CButton(JButton b) implements Swing.Button {
+  @Override public Types.Text text() { return new Types.Text(b.getText()); }
+  @Override public void text(Types.Text text) { b.setText(text.t()); }
 }

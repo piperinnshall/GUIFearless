@@ -98,6 +98,8 @@ Transperant panels/elements
 - Work out uses of float in vec2/3 
 - Implement Color etc.
 - Move key and mouse to top pane
+- Move mouse back to all panels
+- Live updating keybinds
 
 # DOCUMENTATION
 

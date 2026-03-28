@@ -3,12 +3,15 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
 import javax.swing.Timer;
+
 import com.piperinnshall.fluentguijava.fearless.FrameBuilder;
 import com.piperinnshall.fluentguijava.fearless.KeyBuilder;
 import com.piperinnshall.fluentguijava.fearless.PanelBuilder;
 import com.piperinnshall.fluentguijava.fearless.Scope;
 import com.piperinnshall.fluentguijava.fearless.Types;
+
 class CFrameBuilder implements FrameBuilder {
   Types.Position location = null;
   boolean resizable = false;
@@ -18,11 +21,17 @@ class CFrameBuilder implements FrameBuilder {
   Scope<KeyBuilder> keyScope = Scope.nop();
   private final Types.TimeNanos startTime = new Types.TimeNanos(System.nanoTime());
   private final List<APanelBuilder<?>> children = new ArrayList<>();
+
+
   public void start(String title, int fps, CompletableFuture<RuntimeException> done) {
     if (fps <= 0) throw new IllegalArgumentException("fps must be > 0, got: " + fps);
     Types.Dimension screenSize = resolveScreenSize();
     var frame = new CFrame(title, screenSize, done);
-    var topPane = buildTopPane(frame);
+    var queue = new SerialQueue(e -> {
+      frame.dispatchEvent(new java.awt.event.WindowEvent(frame, java.awt.event.WindowEvent.WINDOW_CLOSING));
+      done.complete(e);
+    });
+    var topPane = buildTopPane(frame, queue);
     frame.setContentPane(topPane);
     frame.setUndecorated(undecorated);
     frame.setResizable(resizable);
@@ -36,14 +45,16 @@ class CFrameBuilder implements FrameBuilder {
     int delayMs = Math.round(1000.0f / fps);
     new Timer(delayMs, _ -> frame.tick(new Types.TimeNanos(System.nanoTime() - startTime.nanos()))).start();
   }
-  private CPanel buildTopPane(CFrame frame) {
+
+  private CPanel buildTopPane(CFrame frame, SerialQueue queue) {
     var panel = new CPanel(Scope.nop(), frame);
     panel.setLayout(new BorderLayout());
     panel.setOpaque(false);
     keyScope.run(new CKeyBuilder(panel));
-    for (var child : children) { panel.add(child.buildPanel(frame)); }
+    for (var child : children) { panel.add(child.buildPanel(frame, queue)); }
     return panel;
   }
+
   private static Types.Dimension resolveScreenSize() {
     var b = java.awt.GraphicsEnvironment
       .getLocalGraphicsEnvironment()
@@ -56,6 +67,7 @@ class CFrameBuilder implements FrameBuilder {
     frame.setSize(Awt.dimension(size));
     frame.setLocation(0, 0);
   }
+
   @Override public FrameBuilder location(Types.Position location) { this.location = location; return this; }
   @Override public FrameBuilder maximized() { this.maximized = true; return this; }
   @Override public FrameBuilder resizable() { this.resizable = true; return this; }
