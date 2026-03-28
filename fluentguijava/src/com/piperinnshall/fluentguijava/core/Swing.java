@@ -70,7 +70,7 @@ record CGraphicsCtx(Graphics2D g2d, Types.Time elapsed, Types.Dimension screenSi
   @Override public Ctx.Graphics line(Types.Position from, Types.Position to) { g2d.drawLine(x(from),y(from),x(to),y(to)); return this; }
   @Override public Ctx.Graphics color(Types.Color color) { g2d.setColor(Awt.color(color)); return this; }
 }
-record CMouseCtx(Types.Time elapsed, Types.Position position, Types.Dimension screenSize, Types.Dimension panelSize) implements Ctx.Mouse {}
+record CMouseCtx(Types.Time elapsed, Types.Position mousePosition, Types.Dimension screenSize, Types.Dimension panelSize) implements Ctx.Mouse {}
 record CKeyCtx(Types.Time elapsed, Types.Dimension screenSize, Types.Dimension panelSize, Types.KeyStroke keyStroke) implements Ctx.Key {}
 
 class CFrame extends JFrame {

@@ -9,6 +9,7 @@ public interface PanelBuilder {
     T paint(Scope<Ctx.Graphics> scope);
     T flow(Scope<PanelBuilder.Flow> scope);
     T border(Scope<PanelBuilder.Border> scope);
+    T onMouse(Scope<MouseBuilder> scope);
   }
   interface Flow extends Panel<PanelBuilder.Flow> {}
   interface Border extends Panel<PanelBuilder.Border> {

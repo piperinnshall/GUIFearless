@@ -2,8 +2,8 @@ package com.piperinnshall.fluentguijava.fearless;
 
 public interface Types {
 
-  record X(int x) { public X { if (x < 0) throw new IllegalArgumentException("X must be non-negative: " + x); } }
-  record Y(int y) { public Y { if (y < 0) throw new IllegalArgumentException("Y must be non-negative: " + y); } }
+  record X(int x) {}
+  record Y(int y) {}
 
   record Width(int w) { public Width { if (w < 0) throw new IllegalArgumentException("Width must be non-negative: " + w); } }
   record Height(int h) { public Height { if (h < 0) throw new IllegalArgumentException("Height must be non-negative: " + h); } }
@@ -19,7 +19,7 @@ public interface Types {
 
   record Opacity(float o) { public Opacity { if (o < 0.0 || o > 1.0) throw new IllegalArgumentException("Opacity must be 0.0-1.0: " + o); } }
   record KeyStroke(String k){}
-  record Time(long t){}
+  record Time(long nanos){}
 
   record Scalar(double s) {
     public Scalar { if (Double.isNaN(s) || Double.isInfinite(s)) throw new IllegalArgumentException("Scalar must be finite: " + s); }
@@ -43,7 +43,7 @@ public interface Types {
 
   public record LerpScalar(Scalar start, Scalar end, Time duration, Easing easing) {
     public Scalar at(long elapsedNanos) {
-      float t = elapsedNanos / (duration.t() * 1_000_000_000f);
+      float t = elapsedNanos / (duration.nanos() * 1_000_000_000f);
       t = Math.max(0f, Math.min(1f, t));
       return start.add(end.sub(start).mul(new Scalar(easing.apply(t))));
     }

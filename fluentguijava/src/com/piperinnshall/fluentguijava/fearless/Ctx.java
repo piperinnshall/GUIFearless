@@ -12,7 +12,7 @@ public interface Ctx {
   Dimension panelSize();
 
   interface Mouse extends Ctx {
-    Position position();
+    Position mousePosition();
   }
 
   interface Key extends Ctx {

@@ -9,6 +9,7 @@ import java.util.List;
 import com.piperinnshall.fluentguijava.fearless.Types;
 import com.piperinnshall.fluentguijava.fearless.Ctx;
 import com.piperinnshall.fluentguijava.fearless.PanelBuilder;
+import com.piperinnshall.fluentguijava.fearless.MouseBuilder;
 import com.piperinnshall.fluentguijava.fearless.Scope;
 
 abstract class APanelBuilder<T extends APanelBuilder<T>> {
@@ -16,6 +17,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   Types.Color color = new Types.Color(new Types.Red(0), new Types.Green(0), new Types.Blue(0));
   String constraint = BorderLayout.CENTER;
   Scope<Ctx.Graphics> paint = Scope.nop();
+  Scope<MouseBuilder> mouseScope = Scope.nop();
   List<APanelBuilder<?>> children = new ArrayList<>();
 
   abstract T self();
@@ -25,6 +27,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
     panel.setPreferredSize(Awt.dimension(dimension));
     panel.setBackground(Awt.color(color));
     panel.setLayout(layout());
+    mouseScope.run(new CMouseBuilder(panel));
     addChildren(panel, frame);
     return panel;
   }
@@ -36,6 +39,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   public T paint(Scope<Ctx.Graphics> scope) { this.paint = scope; return self(); }
   public T flow(Scope<PanelBuilder.Flow> scope) { var pb = new CPanelBuilderFlow(); scope.run(pb); children.add(pb); return self(); }
   public T border(Scope<PanelBuilder.Border> scope) { var pb = new CPanelBuilderBorder(); scope.run(pb); children.add(pb); return self(); }
+  public T onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return self(); }
 }
 
 class CPanelBuilderFlow extends APanelBuilder<CPanelBuilderFlow> implements PanelBuilder.Flow {
