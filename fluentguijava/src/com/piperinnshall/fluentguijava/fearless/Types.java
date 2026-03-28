@@ -26,22 +26,24 @@ public interface Types {
 
   record Scalar(double s) {
     public Scalar { if (Double.isNaN(s) || Double.isInfinite(s)) throw new IllegalArgumentException("Scalar must be finite: " + s); }
-    Scalar add(Scalar o) { return new Scalar(s + o.s); }
-    Scalar sub(Scalar o) { return new Scalar(s - o.s); }
-    Scalar mul(Scalar o) { return new Scalar(s * o.s); }
-    Scalar div(Scalar o) { return new Scalar(s / o.s); }
-    Scalar sqrt() { return new Scalar(Math.sqrt(s)); }
+    public Scalar add(Scalar o) { return new Scalar(s + o.s); }
+    public Scalar sub(Scalar o) { return new Scalar(s - o.s); }
+    public Scalar mul(Scalar o) { return new Scalar(s * o.s); }
+    public Scalar div(Scalar o) { return new Scalar(s / o.s); }
+    public Scalar sqrt() { return new Scalar(Math.sqrt(s)); }
     public int toInt() { return (int) s; }
   }
 
-  record Position(X x, Y y) { 
-    public Position(Scalar x, Scalar y) { this(new X(x.toInt()), new Y(y.toInt())); } 
-    public Position(Vector2 v) { this(v.x(), v.y()); } 
+  record Position(X x, Y y) {
+    public Position(Scalar x, Scalar y) { this(new X(x.toInt()), new Y(y.toInt())); }
+    public Position(Vector2 v) { this(v.x(), v.y()); }
+    public Vector2 toVector2() { return new Vector2(new Scalar(x.x()), new Scalar(y.y())); }
   }
 
   record Dimension(Width w, Height h) {
-    public Dimension(Scalar x, Scalar y) { this(new Width(x.toInt()), new Height(y.toInt())); } 
-    public Dimension(Vector2 v) { this(v.x(), v.y()); } 
+    public Dimension(Scalar x, Scalar y) { this(new Width(x.toInt()), new Height(y.toInt())); }
+    public Dimension(Vector2 v) { this(v.x(), v.y()); }
+    public Vector2 toVector2() { return new Vector2(new Scalar(w.w()), new Scalar(h.h())); }
   }
 
   public record LerpScalar(Scalar start, Scalar end, TimeSeconds duration, Easing easing) {
