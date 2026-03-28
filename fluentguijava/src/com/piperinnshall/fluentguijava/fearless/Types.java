@@ -19,7 +19,8 @@ public interface Types {
 
   record Opacity(float o) { public Opacity { if (o < 0.0 || o > 1.0) throw new IllegalArgumentException("Opacity must be 0.0-1.0: " + o); } }
   record KeyStroke(String k){}
-  record Time(long nanos){}
+  record TimeNanos(long nanos){}
+  record TimeSeconds(long seconds){}
 
   record Scalar(double s) {
     public Scalar { if (Double.isNaN(s) || Double.isInfinite(s)) throw new IllegalArgumentException("Scalar must be finite: " + s); }
@@ -41,27 +42,27 @@ public interface Types {
     public Dimension(Vector2 v) { this(v.x(), v.y()); } 
   }
 
-  public record LerpScalar(Scalar start, Scalar end, Time duration, Easing easing) {
-    public Scalar at(long elapsedNanos) {
-      float t = elapsedNanos / (duration.nanos() * 1_000_000_000f);
+  public record LerpScalar(Scalar start, Scalar end, TimeSeconds duration, Easing easing) {
+    public Scalar at(TimeNanos elapsed) {
+      float t = elapsed.nanos() / (duration.seconds() * 1_000_000_000f);
       t = Math.max(0f, Math.min(1f, t));
       return start.add(end.sub(start).mul(new Scalar(easing.apply(t))));
     }
   }
 
-  public record LerpVector2(Vector2 start, Vector2 end, Time duration, Easing easing) {
-    public Vector2 at(long elapsedNanos) {
-      Scalar x = new LerpScalar(start.x(), end.x(), duration, easing).at(elapsedNanos);
-      Scalar y = new LerpScalar(start.y(), end.y(), duration, easing).at(elapsedNanos);
+  public record LerpVector2(Vector2 start, Vector2 end, TimeSeconds duration, Easing easing) {
+    public Vector2 at(TimeNanos elapsed) {
+      Scalar x = new LerpScalar(start.x(), end.x(), duration, easing).at(elapsed);
+      Scalar y = new LerpScalar(start.y(), end.y(), duration, easing).at(elapsed);
       return new Vector2(x, y);
     }
   }
 
-  public record LerpVector3(Vector3 start, Vector3 end, Time duration, Easing easing) {
-    public Vector3 at(long elapsedNanos) {
-      Scalar x = new LerpScalar(start.x(), end.x(), duration, easing).at(elapsedNanos);
-      Scalar y = new LerpScalar(start.y(), end.y(), duration, easing).at(elapsedNanos);
-      Scalar z = new LerpScalar(start.z(), end.z(), duration, easing).at(elapsedNanos);
+  public record LerpVector3(Vector3 start, Vector3 end, TimeSeconds duration, Easing easing) {
+    public Vector3 at(TimeNanos elapsed) {
+      Scalar x = new LerpScalar(start.x(), end.x(), duration, easing).at(elapsed);
+      Scalar y = new LerpScalar(start.y(), end.y(), duration, easing).at(elapsed);
+      Scalar z = new LerpScalar(start.z(), end.z(), duration, easing).at(elapsed);
       return new Vector3(x, y, z);
     }
   }
@@ -111,7 +112,7 @@ public interface Types {
     private Color(Color c) { this(c.r, c.g, c.b, c.a); }
     private static Color fromHSV(Hue h, Saturation s, Value v) {
       if (s.s() == 0) {
-        int c = (int) v.v() * 255;
+        int c = (int) (v.v() * 255);
         return new Color(new Red(c), new Green(c), new Blue(c));
       }
       double hh = (h.h() - Math.floor(h.h())) * 6.0;

@@ -16,7 +16,7 @@ class CFrameBuilder implements FrameBuilder {
   boolean maximized = false;
   Types.Opacity opacity = new Types.Opacity(1);
   Scope<KeyBuilder> keyScope = Scope.nop();
-  private final Types.Time startTime = new Types.Time(System.nanoTime());
+  private final Types.TimeNanos startTime = new Types.TimeNanos(System.nanoTime());
   private final List<APanelBuilder<?>> children = new ArrayList<>();
   public void start(String title, int fps, CompletableFuture<RuntimeException> done) {
     if (fps <= 0) throw new IllegalArgumentException("fps must be > 0, got: " + fps);
@@ -34,7 +34,7 @@ class CFrameBuilder implements FrameBuilder {
     if (location != null) { frame.setLocation(Awt.point(location)); }
     else { frame.setLocationRelativeTo(null); }
     int delayMs = Math.round(1000.0f / fps);
-    new Timer(delayMs, _ -> frame.tick(new Types.Time(System.nanoTime() - startTime.nanos()))).start();
+    new Timer(delayMs, _ -> frame.tick(new Types.TimeNanos(System.nanoTime() - startTime.nanos()))).start();
   }
   private CPanel buildTopPane(CFrame frame) {
     var panel = new CPanel(Scope.nop(), frame);
