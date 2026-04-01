@@ -98,12 +98,12 @@ class CFrame extends JFrame {
   private Types.TimeNanos elapsed;
   private final Types.Dimension screenSize;
   private final List<Runnable> tickHooks = new ArrayList<>();
-  CFrame(String title, Types.Dimension screenSize, CompletableFuture<RuntimeException> done, SerialQueue queue) {
+  CFrame(String title, Types.Dimension screenSize, CompletableFuture<RuntimeException> don, SerialQueue queue) {
     super(title);
     this.screenSize = screenSize;
     addWindowListener(new WindowAdapter() {
       public void windowClosed(WindowEvent e) {
-        queue.closeAndWait();
+        exe.closeAndWait();
         done.complete(null);
       }
     });

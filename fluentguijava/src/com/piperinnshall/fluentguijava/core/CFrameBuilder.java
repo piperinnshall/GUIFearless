@@ -31,8 +31,8 @@ class CFrameBuilder implements FrameBuilder {
         done.complete(e);
       };
       volatile SerialQueue exe = new SerialQueue(c);
-      CFrame f = new CFrame(title, screenSize, done);
-      CPanel p = buildTopPane(f, exe);
+      CFrame f = new CFrame(title, screenSize, done, exe);
+      CPanel p = buildContentPane(f, exe);
     };
     o.f.setContentPane(o.p);
     o.f.setUndecorated(undecorated);
@@ -49,7 +49,7 @@ class CFrameBuilder implements FrameBuilder {
     new Timer(delayMs, _ -> o.f.tick(new Types.TimeNanos(System.nanoTime() - startTime.nanos()))).start();
   }
 
-  private CPanel buildTopPane(CFrame frame, SerialQueue queue) {
+  private CPanel buildContentPane(CFrame frame, SerialQueue queue) {
     var panel = new CPanel(Scope.nop(), frame);
     panel.setLayout(new BorderLayout());
     panel.setOpaque(false);

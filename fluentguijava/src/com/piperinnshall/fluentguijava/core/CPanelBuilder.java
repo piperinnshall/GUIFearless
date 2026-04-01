@@ -27,8 +27,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   Scope<Ctx.Graphics> paint = Scope.nop();
   Scope<MouseBuilder> mouseScope = Scope.nop();
   List<APanelBuilder<?>> children = new ArrayList<>();
-  List<Consumer<JComponent>> rs = new ArrayList<>();
-  List<BiConsumer<JComponent, SerialQueue>> buttons = new ArrayList<>();
+  List<BiConsumer<JComponent, SerialQueue>> components = new ArrayList<>();
 
   abstract T self();
   abstract LayoutManager layout();
@@ -39,8 +38,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
     panel.setBackground(Awt.color(color));
     panel.setLayout(layout());
     mouseScope.run(new CMouseBuilder(panel));
-    rs.forEach(r -> r.accept(panel));
-    buttons.forEach(b -> b.accept(panel, queue));
+    components.forEach(r -> r.accept(panel, queue));
     addChildren(panel, frame, queue);
     return panel;
   }
@@ -55,9 +53,10 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   public T onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return self(); }
 
   public T button(Types.Text text, Runnable r, Slot<Swing.Button> s) {
-    buttons.add((parent, queue) -> {
+    components.add((parent, queue) -> {
       var jb = new JButton(text.t());
       jb.addActionListener(_ -> queue.submit(r));
+      jb.setOpaque(true);
       s.fill(new CButton(jb));
       parent.add(jb);
     });
@@ -65,7 +64,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   }
 
   public T label(Types.Text text, Slot<Swing.Label> s) {
-    rs.add(parent -> {
+    components.add((parent, _) -> {
       var jl = new JLabel(text.t());
       jl.setOpaque(true);
       parent.add(jl);

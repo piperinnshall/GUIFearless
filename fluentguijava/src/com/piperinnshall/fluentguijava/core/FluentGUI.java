@@ -24,6 +24,7 @@ public class FluentGUI {
     var done = new CompletableFuture<RuntimeException>();
     SwingUtilities.invokeLater(() -> fb.start(title, fps, maximized, resizable, done));
     var tr = done.join();
+    
     if (tr != null) { throw tr; }
   }
 }

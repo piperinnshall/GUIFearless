@@ -53,7 +53,7 @@ queue of event?
 
 - Step 1: Support label.text() via slots
 - Step 2: Support text area.focus and .text and stuff
-- Step 3: Somehow we need a label  and text area that represent the whole
+- Step 3: Somehow we need a label and text area that represent the whole
   frame.  
 
 Panel with abs pos
