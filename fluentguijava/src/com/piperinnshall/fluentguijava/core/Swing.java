@@ -137,8 +137,8 @@ class CPanel extends JPanel {
 }
 
 record CButton(JButton b) implements Swing.Button {
-  @Override public Types.Text text() { return new Types.Text(b.getText()); }
-  @Override public void text(Types.Text text) { b.setText(text.t()); }
+  @Override public String text() { return b.getText(); }
+  @Override public void text(String text) { b.setText(text); }
 
   @Override public void foreground(Types.Color c) { b.setForeground(Awt.color(c)); }
   @Override public void background(Types.Color c) { b.setBackground(Awt.color(c)); }
@@ -146,8 +146,8 @@ record CButton(JButton b) implements Swing.Button {
 }
 
 record CLabel(JLabel l) implements Swing.Label {
-  @Override public Types.Text text() { return new Types.Text(l.getText()); }
-  @Override public void text(Types.Text text) { l.setText(text.t()); }
+  @Override public String text() { return l.getText(); }
+  @Override public void text(String text) { l.setText(text); }
 
   @Override public void foreground(Types.Color c) { l.setForeground(Awt.color(c)); }
   @Override public void background(Types.Color c) { l.setBackground(Awt.color(c)); }

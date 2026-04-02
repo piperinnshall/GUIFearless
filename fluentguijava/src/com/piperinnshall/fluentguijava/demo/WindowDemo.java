@@ -11,7 +11,7 @@ public class WindowDemo {
         .size(new Dimension(new Width(601), new Height(400)))
         .background(new Color(new Red(240), new Green(240), new Blue(240)))
         .northFlow(top -> top
-          .size(new Dimension(new Width(600), new Height(50)))
+          .size(new Dimension(new Width(300), new Height(50)))
           .background(new Color(new Red(200), new Green(210), new Blue(255)))
           .flow(btn -> btn.size(new Dimension(new Width(80), new Height(30))).background(new Color(new Red(100), new Green(140), new Blue(255))))
           .flow(btn -> btn.size(new Dimension(new Width(80), new Height(30))).background(new Color(new Red(100), new Green(140), new Blue(255))))

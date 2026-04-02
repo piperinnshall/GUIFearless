@@ -14,8 +14,8 @@ public interface PanelBuilder {
     T border(Scope<PanelBuilder.Border> scope);
     T onMouse(Scope<MouseBuilder> scope);
 
-    T button(Types.Text text, Runnable r, Slot<Button> s);
-    T label(Types.Text text, Slot<Label> s);
+    T button(String text, Runnable r, Slot<Button> s);
+    T label(String text, Slot<Label> s);
   }
   interface Flow extends Panel<PanelBuilder.Flow> {}
   interface Border extends Panel<PanelBuilder.Border> {

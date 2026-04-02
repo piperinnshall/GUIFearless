@@ -33,8 +33,9 @@ queue of event?
 - [x] Can click work wihtout requesting focus: YES
 - [x] special layout panel that uses the frame layouts.
 - [x] Cant move between frames: YES
-- [ ] Resolve should just be a function that does something
-- [ ] Maybe has a Ctx? The exit Ctx that tells us how we exited
+- [x] Resolve should just be a function that does something
+- [x] Maybe has a Ctx? The exit Ctx that tells us how we exited
+
 - [ ] paintable.run operation internally
 - [ ] Instead of having panel and seperate setlayout, you have layout components
 - [ ] State machine compile time error for panels? (Borderlayout)
@@ -51,14 +52,20 @@ queue of event?
 - [ ] we will need a family of gui operations: exit resetFocus
 - [ ] any text area will have .focus to aqcuire focus
 
-- Step 1: Support label.text() via slots
-- Step 2: Support text area.focus and .text and stuff
-- Step 3: Somehow we need a label and text area that represent the whole
-  frame.  
+- [ ] What happen when you click only multiple contained components
+- [ ] .color.pos.rect
+- [ ] real chance to kill the position type
+- [ ] expose x and y in methods
+- [ ] Button to close the gui
+- [ ] Do the layered gui thing with a background and a foreground panel
 
-Panel with abs pos
-3 elements each a panel
-Transperant panels/elements
+- [x] Support label.text() via slots
+- [ ] Support text area.focus and .text and stuff
+- [ ] Somehow we need a label and text area that represent the whole frame.  
+
+- [ ] Panel with abs pos
+- [ ] 3 elements each a panel
+- [ ] Transperant panels/elements
 
 # TODO
 
@@ -103,6 +110,8 @@ Transperant panels/elements
 - Position and Dimension interop with Vector and Scalar for transforms
 - Properly pin SerialQueue to Frame
 - Label and Button working
+- Resolve now always returns the state of the programming exiting
+- GUI lecture for scrollable
 
 # DOCUMENTATION
 
@@ -111,6 +120,7 @@ Transperant panels/elements
 - opacity requires undecorated
 - Every call replaces the last
 - Mouse coords are per-panel
+- Gui returns FluentGUIResult
 
 # Global Mouse Issues:
 

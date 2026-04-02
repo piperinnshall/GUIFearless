@@ -23,7 +23,7 @@ public class ShapeDemo {
   private void toggleKeys() {
     upKey = upKey.k().equals("UP") ? new KeyStroke("W") : new KeyStroke("UP");
     downKey = downKey.k().equals("DOWN") ? new KeyStroke("S") : new KeyStroke("DOWN");
-    toggleBtn.get().text(new Text(upKey.k().equals("UP") ? "Keys: Arrows" : "Keys: WASD"));
+    toggleBtn.get().text(upKey.k().equals("UP") ? "Keys: Arrows" : "Keys: WASD");
   }
 
   private void run() {
@@ -35,10 +35,10 @@ public class ShapeDemo {
             .pressed(() -> upKey, _ -> updateLineY(-0.05f))
             .pressed(() -> downKey, _ -> updateLineY(0.05f)))
         .flow(panel -> panel
-            .button(new Text("Crash"), () -> { throw new RuntimeException("Explode"); }, Slot.of())
-            .button(new Text("Keys: Arrows"), this::toggleKeys, toggleBtn)
-            .label(new Text("Hello World!"), Slot.of())
-            .label(new Text("Foo Bar Baz"), Slot.of())
+            .button("Crash", () -> { throw new RuntimeException("Explode"); }, Slot.of())
+            .button("Keys: Arrows", this::toggleKeys, toggleBtn)
+            .label("Hello World!", Slot.of())
+            .label("Foo Bar Baz", Slot.of())
             .size(new Dimension(new Width(800), new Height(800)))
             .background(new Color(new Red(30), new Green(30), new Blue(30)))
             .onMouse(m -> m
@@ -49,22 +49,22 @@ public class ShapeDemo {
                         new Blue((int) (Math.random() * 255))))))
             .paint(ctx -> {
               var s = ctx.panelSize().toVector2();
-              var w = s.x();
-              var h = s.y();
               ctx.color(rectColor)
-                  .rect(new Position(s.mul(new Scalar(0.10))), new Dimension(s.mul(new Scalar(0.25))))
+                  .rect(new Position(s.mul(0.10)), new Dimension(s.mul(0.25)))
                   .color(ovalColor)
-                  .oval(new Position(s.mul(new Scalar(0.40))), new Dimension(s.mul(new Scalar(0.20))))
+                  .oval(new Position(s.mul(0.40)), new Dimension(s.mul(0.20)))
                   .color(lineColor)
                   .line(
-                      new Position(w.mul(new Scalar(0.10)), h.mul(new Scalar(lineY))),
-                      new Position(w.mul(new Scalar(0.90)), h.mul(new Scalar(lineY))));
+                      new Position(new X((int) (s.x() * 0.10)), new Y((int) (s.y() * lineY))),
+                      new Position(new X((int) (s.x() * 0.90)), new Y((int) (s.y() * lineY))));
             })));
+
     String out = switch(result) {
       case FluentGUIResult.Unknown() -> "Unknown";
       case FluentGUIResult.Closed() -> "Closed";
       case FluentGUIResult.Crashed(RuntimeException cause) -> "Crashed: " + cause.getLocalizedMessage();
     };
+
     System.out.println("Output of the GUI is: " + out);
   }
   public static void main(String[] args) {

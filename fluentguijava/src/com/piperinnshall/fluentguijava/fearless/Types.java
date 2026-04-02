@@ -27,92 +27,14 @@ public interface Types {
   record TimeNanos(long nanos){}
   record TimeSeconds(long seconds){}
 
-  record Text(String t) {}
-
-  record Scalar(double s) {
-    public Scalar { if (Double.isNaN(s) || Double.isInfinite(s)) throw new IllegalArgumentException("Scalar must be finite: " + s); }
-    public Scalar add(Scalar o) { return new Scalar(s + o.s); }
-    public Scalar sub(Scalar o) { return new Scalar(s - o.s); }
-    public Scalar mul(Scalar o) { return new Scalar(s * o.s); }
-    public Scalar div(Scalar o) { return new Scalar(s / o.s); }
-    public Scalar sqrt() { return new Scalar(Math.sqrt(s)); }
-    public int toInt() { return (int) s; }
-  }
-
   record Position(X x, Y y) {
-    public Position(Scalar x, Scalar y) { this(new X(x.toInt()), new Y(y.toInt())); }
-    public Position(Vector2 v) { this(v.x(), v.y()); }
-    public Vector2 toVector2() { return new Vector2(new Scalar(x.x()), new Scalar(y.y())); }
+    public Position(Vector2 v) { this(new X((int) v.x()), new Y((int) v.y())); }
+    public Vector2 toVector2() { return new Vector2(x.x(), y.y()); }
   }
 
   record Dimension(Width w, Height h) {
-    public Dimension(Scalar x, Scalar y) { this(new Width(x.toInt()), new Height(y.toInt())); }
-    public Dimension(Vector2 v) { this(v.x(), v.y()); }
-    public Vector2 toVector2() { return new Vector2(new Scalar(w.w()), new Scalar(h.h())); }
-  }
-
-  public record LerpScalar(Scalar start, Scalar end, TimeSeconds duration, Easing easing) {
-    public Scalar at(TimeNanos elapsed) {
-      float t = elapsed.nanos() / (duration.seconds() * 1_000_000_000f);
-      t = Math.max(0f, Math.min(1f, t));
-      return start.add(end.sub(start).mul(new Scalar(easing.apply(t))));
-    }
-  }
-
-  public record LerpVector2(Vector2 start, Vector2 end, TimeSeconds duration, Easing easing) {
-    public Vector2 at(TimeNanos elapsed) {
-      Scalar x = new LerpScalar(start.x(), end.x(), duration, easing).at(elapsed);
-      Scalar y = new LerpScalar(start.y(), end.y(), duration, easing).at(elapsed);
-      return new Vector2(x, y);
-    }
-  }
-
-  public record LerpVector3(Vector3 start, Vector3 end, TimeSeconds duration, Easing easing) {
-    public Vector3 at(TimeNanos elapsed) {
-      Scalar x = new LerpScalar(start.x(), end.x(), duration, easing).at(elapsed);
-      Scalar y = new LerpScalar(start.y(), end.y(), duration, easing).at(elapsed);
-      Scalar z = new LerpScalar(start.z(), end.z(), duration, easing).at(elapsed);
-      return new Vector3(x, y, z);
-    }
-  }
-
-  record Vector2(Scalar x, Scalar y) {
-    public Vector2(Scalar s) { this(s, s); }
-    public Vector2 add(Vector2 o) { return new Vector2(x.add(o.x), y.add(o.y)); }
-    public Vector2 sub(Vector2 o) { return new Vector2(x.sub(o.x), y.sub(o.y)); }
-    public Vector2 add(Scalar s) { return new Vector2(x.add(s), y.add(s)); }
-    public Vector2 sub(Scalar s) { return new Vector2(x.sub(s), y.sub(s)); }
-    public Vector2 mul(Scalar s) { return new Vector2(x.mul(s), y.mul(s)); }
-    public Vector2 div(Scalar s) { return new Vector2(x.div(s), y.div(s)); }
-    public Scalar dot(Vector2 v) { return x.mul(v.x).add(y.mul(v.y)); }
-    public Scalar lenSq() { return dot(this); }
-    public Scalar len() { return lenSq().sqrt(); }
-    public Vector2 normalize() { return div(len()); }
-    public Scalar dist(Vector2 o) { return sub(o).len(); }
-    public Scalar distSq(Vector2 o) { return sub(o).lenSq(); }
-  }
-
-  record Vector3(Scalar x, Scalar y, Scalar z) {
-    public Vector3(Scalar s) { this(s, s, s); }
-    public Vector3 add(Vector3 o) { return new Vector3(x.add(o.x), y.add(o.y), z.add(o.z)); }
-    public Vector3 sub(Vector3 o) { return new Vector3(x.sub(o.x), y.sub(o.y), z.sub(o.z)); }
-    public Vector3 add(Scalar s) { return new Vector3(x.add(s), y.add(s), z.add(s)); }
-    public Vector3 sub(Scalar s) { return new Vector3(x.sub(s), y.sub(s), z.sub(s)); }
-    public Vector3 mul(Scalar s) { return new Vector3(x.mul(s), y.mul(s), z.mul(s)); }
-    public Vector3 div(Scalar s) { return new Vector3(x.div(s), y.div(s), z.div(s)); }
-    public Scalar dot(Vector3 v) { return x.mul(v.x).add(y.mul(v.y)).add(z.mul(v.z)); }
-    public Vector3 cross(Vector3 v) {
-      return new Vector3(
-          y.mul(v.z).sub(z.mul(v.y)),
-          z.mul(v.x).sub(x.mul(v.z)),
-          x.mul(v.y).sub(y.mul(v.x))
-          );
-    }
-    public Scalar lenSq() { return dot(this); }
-    public Scalar len() { return lenSq().sqrt(); }
-    public Vector3 normalize() { return div(len()); }
-    public Scalar dist(Vector3 o) { return sub(o).len(); }
-    public Scalar distSq(Vector3 o) { return sub(o).lenSq(); }
+    public Dimension(Vector2 v) { this(new Width((int) v.x()), new Height((int) v.y())); }
+    public Vector2 toVector2() { return new Vector2(w.w(), h.h()); }
   }
 
   record Color(Red r, Green g, Blue b, Alpha a) {
@@ -139,4 +61,67 @@ public interface Types {
     }
   }
 
+  public record Lerpdouble(double start, double end, TimeSeconds duration, Easing easing) {
+    public double at(TimeNanos elapsed) {
+      float t = elapsed.nanos() / (duration.seconds() * 1_000_000_000f);
+      t = Math.max(0f, Math.min(1f, t));
+      return start + (end - start * easing.apply(t));
+    }
+  }
+
+  public record LerpVector2(Vector2 start, Vector2 end, TimeSeconds duration, Easing easing) {
+    public Vector2 at(TimeNanos elapsed) {
+      double x = new Lerpdouble(start.x(), end.x(), duration, easing).at(elapsed);
+      double y = new Lerpdouble(start.y(), end.y(), duration, easing).at(elapsed);
+      return new Vector2(x, y);
+    }
+  }
+
+  public record LerpVector3(Vector3 start, Vector3 end, TimeSeconds duration, Easing easing) {
+    public Vector3 at(TimeNanos elapsed) {
+      double x = new Lerpdouble(start.x(), end.x(), duration, easing).at(elapsed);
+      double y = new Lerpdouble(start.y(), end.y(), duration, easing).at(elapsed);
+      double z = new Lerpdouble(start.z(), end.z(), duration, easing).at(elapsed);
+      return new Vector3(x, y, z);
+    }
+  }
+
+  record Vector2(double x, double y) {
+    public Vector2(double s) { this(s, s); }
+    public Vector2 add(Vector2 o) { return new Vector2(x + o.x, y + o.y); }
+    public Vector2 sub(Vector2 o) { return new Vector2(x - o.x, y - o.y); }
+    public Vector2 add(double s) { return new Vector2(x + s, y + s); }
+    public Vector2 sub(double s) { return new Vector2(x - s, y - s); }
+    public Vector2 mul(double s) { return new Vector2(x * s, y * s); }
+    public Vector2 div(double s) { return new Vector2(x / s, y / s); }
+    public Vector2 normalize() { return div(len()); }
+    public double dot(Vector2 v) { return x * v.x + y * v.y; }
+    public double lenSq() { return dot(this); }
+    public double len() { return Math.sqrt(lenSq()); }
+    public double dist(Vector2 o) { return sub(o).len(); }
+    public double distSq(Vector2 o) { return sub(o).lenSq(); }
+  }
+
+  public record Vector3(double x, double y, double z) {
+    public Vector3(double s) { this(s, s, s); }
+    public Vector3 add(Vector3 o) { return new Vector3(x + o.x, y + o.y, z + o.z); }
+    public Vector3 sub(Vector3 o) { return new Vector3(x - o.x, y - o.y, z - o.z); }
+    public Vector3 add(double s) { return new Vector3(x + s, y + s, z + s); }
+    public Vector3 sub(double s) { return new Vector3(x - s, y - s, z - s); }
+    public Vector3 mul(double s) { return new Vector3(x * s, y * s, z * s); }
+    public Vector3 div(double s) { return new Vector3(x / s, y / s, z / s); }
+    public double dot(Vector3 v) { return x * v.x + y * v.y + z * v.z; }
+    public Vector3 cross(Vector3 v) {
+      return new Vector3(
+          y * v.z - z * v.y,
+          z * v.x - x * v.z,
+          x * v.y - y * v.x
+          );
+    }
+    public double lenSq() { return dot(this); }
+    public double len() { return Math.sqrt(lenSq()); }
+    public Vector3 normalize() { return div(len()); }
+    public double dist(Vector3 o) { return sub(o).len(); }
+    public double distSq(Vector3 o) { return sub(o).lenSq(); }
+  }
 }

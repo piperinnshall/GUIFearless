@@ -51,9 +51,9 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   public T border(Scope<PanelBuilder.Border> scope) { var pb = new CPanelBuilderBorder(); scope.run(pb); children.add(pb); return self(); }
   public T onMouse(Scope<MouseBuilder> scope) { this.mouseScope = scope; return self(); }
 
-  public T button(Types.Text text, Runnable r, Slot<Swing.Button> s) {
+  public T button(String text, Runnable r, Slot<Swing.Button> s) {
     components.add((parent, queue) -> {
-      var jb = new JButton(text.t());
+      var jb = new JButton(text);
       jb.addActionListener(_ -> queue.submit(r));
       jb.setOpaque(true);
       s.fill(new CButton(jb));
@@ -62,9 +62,9 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
     return self();
   }
 
-  public T label(Types.Text text, Slot<Swing.Label> s) {
+  public T label(String text, Slot<Swing.Label> s) {
     components.add((parent, _) -> {
-      var jl = new JLabel(text.t());
+      var jl = new JLabel(text);
       jl.setOpaque(true);
       s.fill(new CLabel(jl));
       parent.add(jl);
