@@ -5,7 +5,6 @@ import java.awt.BorderLayout;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -67,6 +66,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
     components.add((parent, _) -> {
       var jl = new JLabel(text.t());
       jl.setOpaque(true);
+      s.fill(new CLabel(jl));
       parent.add(jl);
     });
     return self();

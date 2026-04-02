@@ -27,7 +27,7 @@ public class ShapeDemo {
   }
 
   private void run() {
-    new FluentGUI().run("Shape Demo", 60, false, true, frame -> frame
+    var result = new FluentGUI().run("Shape Demo", 60, false, true, frame -> frame
         // .undecorated(new Opacity(1))
         .onKey(k -> k
             .pressed(() -> new KeyStroke("R"), _ -> updateRectColor(new Color(new Red(255), new Green(0), new Blue(0))))
@@ -35,6 +35,7 @@ public class ShapeDemo {
             .pressed(() -> upKey, _ -> updateLineY(-0.05f))
             .pressed(() -> downKey, _ -> updateLineY(0.05f)))
         .flow(panel -> panel
+            .button(new Text("Crash"), () -> { throw new RuntimeException("Explode"); }, Slot.of())
             .button(new Text("Keys: Arrows"), this::toggleKeys, toggleBtn)
             .label(new Text("Hello World!"), Slot.of())
             .label(new Text("Foo Bar Baz"), Slot.of())
@@ -59,6 +60,12 @@ public class ShapeDemo {
                       new Position(w.mul(new Scalar(0.10)), h.mul(new Scalar(lineY))),
                       new Position(w.mul(new Scalar(0.90)), h.mul(new Scalar(lineY))));
             })));
+    String out = switch(result) {
+      case FluentGUIResult.Unknown() -> "Unknown";
+      case FluentGUIResult.Closed() -> "Closed";
+      case FluentGUIResult.Crashed(RuntimeException cause) -> "Crashed: " + cause.getLocalizedMessage();
+    };
+    System.out.println("Output of the GUI is: " + out);
   }
   public static void main(String[] args) {
     new ShapeDemo().run();

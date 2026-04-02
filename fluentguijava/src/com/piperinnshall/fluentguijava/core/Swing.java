@@ -21,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.Timer;
 
 import com.piperinnshall.fluentguijava.fearless.Types;
 import com.piperinnshall.fluentguijava.fearless.Ctx;
@@ -98,11 +99,13 @@ class CFrame extends JFrame {
   private Types.TimeNanos elapsed;
   private final Types.Dimension screenSize;
   private final List<Runnable> tickHooks = new ArrayList<>();
-  CFrame(String title, Types.Dimension screenSize, CompletableFuture<RuntimeException> done, SerialQueue queue) {
+  CFrame(String title, Types.Dimension screenSize, CompletableFuture<RuntimeException> done, SerialQueue queue, Consumer<Types.FluentGUIResult> onResult, Timer t) {
     super(title);
     this.screenSize = screenSize;
     addWindowListener(new WindowAdapter() {
       public void windowClosed(WindowEvent e) {
+        t.stop();
+        onResult.accept(new Types.FluentGUIResult.Closed());
         queue.closeAndWait();
         done.complete(null);
       }

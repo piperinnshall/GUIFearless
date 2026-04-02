@@ -15,9 +15,10 @@ import com.piperinnshall.fluentguijava.fearless.Scope;
 import com.piperinnshall.fluentguijava.fearless.Types;
 
 class CFrameBuilder implements FrameBuilder {
+  Types.FluentGUIResult result = new Types.FluentGUIResult.Unknown(); 
   Types.Position location = null;
-  boolean undecorated = false;
   Types.Opacity opacity = new Types.Opacity(1);
+  boolean undecorated = false;
   Scope<KeyBuilder> keyScope = Scope.nop();
   private final Types.TimeNanos startTime = new Types.TimeNanos(System.nanoTime());
   private final List<APanelBuilder<?>> children = new ArrayList<>();
@@ -26,12 +27,16 @@ class CFrameBuilder implements FrameBuilder {
     if (fps <= 0) throw new IllegalArgumentException("fps must be > 0, got: " + fps);
     Types.Dimension screenSize = resolveScreenSize();
     var o = new Object() {
-      Consumer<RuntimeException> c = e -> {
+      private int delayMs = Math.round(1000.0f / fps);
+      Timer t = new Timer(delayMs, _ -> this.f.tick(new Types.TimeNanos(System.nanoTime() - startTime.nanos())));
+      private Consumer<RuntimeException> c = e -> {
         this.f.dispatchEvent(new WindowEvent(this.f, WindowEvent.WINDOW_CLOSING));
+        t.stop();
+        result = new Types.FluentGUIResult.Crashed(e);
         done.complete(e);
       };
       volatile SerialQueue exe = new SerialQueue(c);
-      CFrame f = new CFrame(title, screenSize, done, exe);
+      CFrame f = new CFrame(title, screenSize, done, exe, r -> result = r, t);
       CPanel p = buildContentPane(f, exe);
     };
     o.f.setContentPane(o.p);
@@ -45,8 +50,7 @@ class CFrameBuilder implements FrameBuilder {
     if (location != null) { o.f.setLocation(Awt.point(location)); }
     else { o.f.setLocationRelativeTo(null); }
 
-    int delayMs = Math.round(1000.0f / fps);
-    new Timer(delayMs, _ -> o.f.tick(new Types.TimeNanos(System.nanoTime() - startTime.nanos()))).start();
+    o.t.start();
   }
 
   private CPanel buildContentPane(CFrame frame, SerialQueue queue) {
@@ -70,6 +74,7 @@ class CFrameBuilder implements FrameBuilder {
     frame.setLocation(0, 0);
   }
 
+  @Override public Types.FluentGUIResult result() { return result; }
   @Override public FrameBuilder location(Types.Position location) { this.location = location; return this; }
   @Override public FrameBuilder undecorated(Types.Opacity opacity) { this.undecorated = true; this.opacity = opacity; return this; }
   @Override public FrameBuilder onKey(Scope<KeyBuilder> scope) { this.keyScope = scope; return this; }

@@ -1,6 +1,11 @@
 package com.piperinnshall.fluentguijava.fearless;
 
 public interface Types {
+  sealed interface FluentGUIResult {
+    record Unknown() implements FluentGUIResult {}
+    record Closed() implements FluentGUIResult {}
+    record Crashed(RuntimeException cause) implements FluentGUIResult {}
+  }
 
   record X(int x) {}
   record Y(int y) {}
