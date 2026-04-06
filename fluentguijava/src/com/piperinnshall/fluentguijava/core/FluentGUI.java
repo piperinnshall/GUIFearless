@@ -21,7 +21,8 @@ public class FluentGUI {
     return run(title, fps, false, false, fb);
   }
 
-  private FluentGUIResult run(String title, int fps, boolean maximized, boolean resizable, CFrameBuilder fb) { var done = new CompletableFuture<RuntimeException>();
+  private FluentGUIResult run(String title, int fps, boolean maximized, boolean resizable, CFrameBuilder fb) {  
+    var done = new CompletableFuture<RuntimeException>();
     SwingUtilities.invokeLater(() -> fb.start(title, fps, maximized, resizable, done));
     done.join();
     return fb.result(); 

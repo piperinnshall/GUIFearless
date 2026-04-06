@@ -112,6 +112,7 @@ queue of event?
 - Label and Button working
 - Resolve now always returns the state of the programming exiting
 - GUI lecture for scrollable
+- Remove scalar type
 
 # DOCUMENTATION
 

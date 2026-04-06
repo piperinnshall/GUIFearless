@@ -27,7 +27,7 @@ public class ShapeDemo {
   }
 
   private void run() {
-    var result = new FluentGUI().run("Shape Demo", 60, false, true, frame -> frame
+    FluentGUIResult result = new FluentGUI().run("Shape Demo", 60, false, true, frame -> frame
         // .undecorated(new Opacity(1))
         .onKey(k -> k
             .pressed(() -> new KeyStroke("R"), _ -> updateRectColor(new Color(new Red(255), new Green(0), new Blue(0))))
@@ -43,10 +43,7 @@ public class ShapeDemo {
             .background(new Color(new Red(30), new Green(30), new Blue(30)))
             .onMouse(m -> m
                 .clicked(_ -> updateOvalColor(
-                    new Color(
-                        new Red((int) (Math.random() * 255)),
-                        new Green((int) (Math.random() * 255)),
-                        new Blue((int) (Math.random() * 255))))))
+                    new Color(new Red((int) (Math.random() * 255)), new Green((int) (Math.random() * 255)), new Blue((int) (Math.random() * 255))))))
             .paint(ctx -> {
               var s = ctx.panelSize().toVector2();
               ctx.color(rectColor)

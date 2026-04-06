@@ -19,15 +19,10 @@ public interface PanelBuilder {
   }
   interface Flow extends Panel<PanelBuilder.Flow> {}
   interface Border extends Panel<PanelBuilder.Border> {
-    PanelBuilder.Border northFlow(Scope<PanelBuilder.Flow> scope);
-    PanelBuilder.Border southFlow(Scope<PanelBuilder.Flow> scope);
-    PanelBuilder.Border eastFlow(Scope<PanelBuilder.Flow> scope);
-    PanelBuilder.Border westFlow(Scope<PanelBuilder.Flow> scope);
-    PanelBuilder.Border centerFlow(Scope<PanelBuilder.Flow> scope);
-    PanelBuilder.Border northBorder(Scope<PanelBuilder.Border> scope);
-    PanelBuilder.Border southBorder(Scope<PanelBuilder.Border> scope);
-    PanelBuilder.Border eastBorder(Scope<PanelBuilder.Border> scope);
-    PanelBuilder.Border westBorder(Scope<PanelBuilder.Border> scope);
-    PanelBuilder.Border centerBorder(Scope<PanelBuilder.Border> scope);
+    PanelBuilder.Border north(Scope<PanelBuilder.Flow> scope);
+    PanelBuilder.Border south(Scope<PanelBuilder.Flow> scope);
+    PanelBuilder.Border east(Scope<PanelBuilder.Flow> scope);
+    PanelBuilder.Border west(Scope<PanelBuilder.Flow> scope);
+    PanelBuilder.Border center(Scope<PanelBuilder.Flow> scope);
   }
 }
