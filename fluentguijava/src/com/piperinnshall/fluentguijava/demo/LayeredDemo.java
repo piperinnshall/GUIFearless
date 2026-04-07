@@ -12,7 +12,8 @@ public class LayeredDemo {
   static Scope<Flow> flow2 = f -> f
       .background(new Color(new Red(120), new Green(150), new Blue(30)))
       .size(new Dimension(new Width(250), new Height(250)))
-      .button("Crash", () -> { throw new RuntimeException("Explode"); }, Slot.of());
+      .button("Boom", () -> { throw new RuntimeException("Boom"); }, Slot.of())
+      .button("Crash", () -> { throw new RuntimeException("Crash"); }, Slot.of())
   ;
 
   static Scope<Flow> flow1 = f -> f
