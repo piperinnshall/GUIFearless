@@ -14,6 +14,11 @@ public class LayeredDemo {
       .size(new Dimension(new Width(250), new Height(250)))
       .button("Boom", () -> { throw new RuntimeException("Boom"); }, Slot.of())
       .button("Crash", () -> { throw new RuntimeException("Crash"); }, Slot.of())
+      // .onMouse(mouse -> mouse
+      //   .clicked(click -> 
+      //       System.out.println(click.mousePosition())
+      //     )
+      //   )
     ;
 
     Scope<Flow> flow1 = f -> f
@@ -22,6 +27,11 @@ public class LayeredDemo {
       .label("Layered Mouse Handling", Slot.of())
       .flow(flow2)
       .label("Layered Mouse Handling", Slot.of())
+      // .onMouse(mouse -> mouse
+      //   .clicked(click -> 
+      //       System.out.println(click.mousePosition())
+      //     )
+      //   )
     ;
     var result = new FluentGUI().run("", 60, gui -> gui.flow(flow1));
 

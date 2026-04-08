@@ -2,6 +2,7 @@ package com.piperinnshall.fluentguijava.core;
 
 import com.piperinnshall.fluentguijava.fearless.FrameBuilder;
 import com.piperinnshall.fluentguijava.fearless.KeyBuilder;
+import com.piperinnshall.fluentguijava.fearless.MouseBuilder;
 import com.piperinnshall.fluentguijava.fearless.PanelBuilder;
 import com.piperinnshall.fluentguijava.fearless.Scope;
 import com.piperinnshall.fluentguijava.fearless.Types;
@@ -22,6 +23,7 @@ class CFrameBuilder implements FrameBuilder {
   private Types.Dimension screenSize                            = resolveScreenSize();
   private Types.Position location                               = null;
   private Scope<KeyBuilder> keyScope                            = Scope.nop();
+  private Scope<MouseBuilder> mouseScope                        = Scope.nop();
   private List<BiConsumer<JComponent, SerialQueue>> components  = new ArrayList<>();
 
   private CFrame frame;
@@ -54,6 +56,7 @@ class CFrameBuilder implements FrameBuilder {
       volatile SerialQueue exe = new SerialQueue(c);
       CFrame f = new CFrame(title, screenSize, done, exe, r -> result = r, t);
       CPanel p = buildContentPane(f, exe);
+      CPanel g = buildGlassPane(f);
       };
 
     o.f.setContentPane(o.p);
@@ -83,10 +86,18 @@ class CFrameBuilder implements FrameBuilder {
     var panel = new CPanel(Scope.nop(), frame);
     panel.setLayout(new BorderLayout());
     panel.setOpaque(false);
+    panel.setVisible(true);
     keyScope.run(new CKeyBuilder(panel));
     components.forEach(r -> r.accept(panel, queue));
     return panel;
     }
+  private CPanel buildGlassPane(CFrame frame) {
+    var panel = new CPanel(Scope.nop(), frame);
+    panel.setOpaque(false);
+    panel.setVisible(true);
+    return panel;
+    }
+
   private static Types.Dimension resolveScreenSize() {
     var b = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment()
       .getDefaultScreenDevice()
@@ -110,6 +121,9 @@ class CFrameBuilder implements FrameBuilder {
     }
   @Override public FrameBuilder onKey(Scope<KeyBuilder> scope) {
     this.keyScope = scope; return this;
+    }
+  @Override public FrameBuilder onMouse(Scope<MouseBuilder> scope) {
+    this.mouseScope = scope; return this;
     }
 
   private FrameBuilder add(BiConsumer<JComponent, SerialQueue> component) {

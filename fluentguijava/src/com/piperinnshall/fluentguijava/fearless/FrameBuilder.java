@@ -11,4 +11,5 @@ public interface FrameBuilder {
   FrameBuilder flow(Scope<PanelBuilder.Flow> scope);
   FrameBuilder border(Scope<PanelBuilder.Border> scope);
   FrameBuilder onKey(Scope<KeyBuilder> scope);
+  FrameBuilder onMouse(Scope<MouseBuilder> scope);
   }

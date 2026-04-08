@@ -12,7 +12,6 @@ public interface PanelBuilder {
     T paint(Scope<Ctx.Graphics> scope);
     T flow(Scope<PanelBuilder.Flow> scope);
     T border(Scope<PanelBuilder.Border> scope);
-    T onMouse(Scope<MouseBuilder> scope);
 
     T button(String text, Runnable r, Slot<Button> s);
     T label(String text, Slot<Label> s);

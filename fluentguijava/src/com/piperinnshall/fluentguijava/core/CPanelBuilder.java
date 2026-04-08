@@ -1,7 +1,6 @@
 package com.piperinnshall.fluentguijava.core;
 
 import com.piperinnshall.fluentguijava.fearless.Ctx;
-import com.piperinnshall.fluentguijava.fearless.MouseBuilder;
 import com.piperinnshall.fluentguijava.fearless.PanelBuilder;
 import com.piperinnshall.fluentguijava.fearless.Scope;
 import com.piperinnshall.fluentguijava.fearless.Slot;
@@ -21,7 +20,6 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   private Types.Dimension dimension                               = new Types.Dimension(new Types.Width(100), new Types.Height(100));
   private Types.Color color                                       = new Types.Color(new Types.Red(0), new Types.Green(0), new Types.Blue(0));
   private Scope<Ctx.Graphics> paint                               = Scope.nop();
-  private Scope<MouseBuilder> mouseScope                          = Scope.nop();
   protected List<BiConsumer<JComponent, SerialQueue>> components  = new ArrayList<>();
 
   protected CFrame frame;
@@ -35,7 +33,6 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
     panel.setLayout(layout());
     panel.setPreferredSize(Awt.dimension(dimension));
     panel.setBackground(Awt.color(color));
-    mouseScope.run(new CMouseBuilder(panel));
     components.forEach(r -> r.accept(panel, queue));
     return panel;
     }
@@ -48,9 +45,6 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
     }
   public T paint(Scope<Ctx.Graphics> scope) {
     this.paint = scope; return self();
-    }
-  public T onMouse(Scope<MouseBuilder> scope) {
-    this.mouseScope = scope; return self();
     }
 
   private T add(BiConsumer<JComponent, SerialQueue> component) {
