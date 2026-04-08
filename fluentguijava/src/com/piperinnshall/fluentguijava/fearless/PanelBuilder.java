@@ -7,6 +7,7 @@ import com.piperinnshall.fluentguijava.fearless.Types.Dimension;
 
 public interface PanelBuilder {
   interface Panel<T> {
+    T transparent();
     T size(Dimension dimension);
     T background(Color color);
     T paint(Scope<Ctx.Graphics> scope);

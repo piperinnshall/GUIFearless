@@ -18,8 +18,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 abstract class APanelBuilder<T extends APanelBuilder<T>> {
+  private boolean opaque                    = true;
   private Types.Dimension dimension         = new Types.Dimension(new Types.Width(100), new Types.Height(100));
-  private Types.Color color                 = new Types.Color(new Types.Red(0), new Types.Green(0), new Types.Blue(0));
+  private Types.Color background            = new Types.Color(new Types.Red(0), new Types.Green(0), new Types.Blue(0));
   private Scope<Ctx.Graphics> paint         = Scope.nop();
   private Scope<MouseBuilder> mouseScope    = Scope.nop();
   protected List<FrameComponent> components = new ArrayList<>();
@@ -31,17 +32,21 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
     var panel = new CPanel(paint, frame);
     panel.setLayout(layout());
     panel.setPreferredSize(Awt.dimension(dimension));
-    panel.setBackground(Awt.color(color));
+    panel.setBackground(Awt.color(background));
+    panel.setOpaque(opaque);
     mouseScope.run(new CMouseBuilder(panel));
     components.forEach(r -> r.accept(frame, panel, queue));
     return panel;
     }
 
+  public T transparent() {
+    this.opaque = false; return self();
+    }
   public T size(Types.Dimension dimension) {
     this.dimension = dimension; return self();
     }
   public T background(Types.Color color) {
-    this.color = color; return self();
+    this.background = color; return self();
     }
   public T paint(Scope<Ctx.Graphics> scope) {
     this.paint = scope; return self();

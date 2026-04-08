@@ -54,9 +54,9 @@ queue of event?
 
 - [x] What happen when you click on multiple contained components
     - Top one registers the click.
-- [ ] .color.pos.rect
-- [ ] real chance to kill the position type
-- [ ] expose x and y in methods
+- [x] .color.pos.rect
+- [x] real chance to kill the position type
+- [x] expose x and y in methods
 - [ ] Button to close the gui
 - [ ] Do the layered gui thing with a background and a foreground panel
 
@@ -66,7 +66,7 @@ queue of event?
 
 - [ ] Panel with abs pos
 - [ ] 3 elements each a panel
-- [ ] Transperant panels/elements
+- [x] Transparent panels/elements
 
 # TODO
 

@@ -6,10 +6,9 @@ import com.piperinnshall.fluentguijava.fearless.Swing;
 import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 public class ShapeDemo {
-  private Color rectColor = new Color(new Red(255), new Green(100), new Blue(100));
-  private Color ovalColor = new Color(new Red(100), new Green(200), new Blue(255));
-  private Color lineColor = new Color(new Red(255), new Green(255), new Blue(100));
-
+  private Color rectColor   = new Color(new Red(255), new Green(100), new Blue(100));
+  private Color ovalColor   = new Color(new Red(100), new Green(200), new Blue(255));
+  private Color lineColor   = new Color(new Red(255), new Green(255), new Blue(100));
   private float lineY       = 0.75f;
   private KeyStroke upKey   = new KeyStroke("UP");
   private KeyStroke downKey = new KeyStroke("DOWN");
@@ -21,9 +20,9 @@ public class ShapeDemo {
   private void updateLineY(float delta) { lineY = Math.max(0f, Math.min(1f, lineY + delta)); }
 
   private void toggleKeys() {
-    upKey = upKey.k().equals("UP") ? new KeyStroke("W") : new KeyStroke("UP");
-    downKey = downKey.k().equals("DOWN") ? new KeyStroke("S") : new KeyStroke("DOWN");
-    toggleBtn.get().text(upKey.k().equals("UP") ? "Keys: Arrows" : "Keys: WASD");
+    upKey   = upKey.k().equals("UP")            ? new KeyStroke("W")  : new KeyStroke("UP");
+    downKey = downKey.k().equals("DOWN")        ? new KeyStroke("S")  : new KeyStroke("DOWN");
+    toggleBtn.get().text(upKey.k().equals("UP") ? "Keys: Arrows"      : "Keys: WASD");
     }
 
   private void run() {
@@ -35,6 +34,7 @@ public class ShapeDemo {
         .pressed(() -> downKey, _ -> updateLineY(0.05f))
         )
       .flow(panel -> panel
+        .transparent()
         .button("Crash", () -> { throw new RuntimeException("Explode"); }, Slot.of())
         .button("Keys: Arrows", this::toggleKeys, toggleBtn)
         .label("Hello World!", Slot.of())
@@ -68,7 +68,7 @@ public class ShapeDemo {
            .color(lineColor)
            .position(new X(rectX), new Y(lineYPos))
            .line(new X(lineXEnd), new Y(lineYPos));
-          });
+          })
         )
       );
 
