@@ -5,7 +5,7 @@ public interface Types {
     record Unknown() implements FluentGUIResult {}
     record Closed() implements FluentGUIResult {}
     record Crashed(RuntimeException cause) implements FluentGUIResult {}
-  }
+    }
 
   record X(int x) {}
   record Y(int y) {}
@@ -30,12 +30,12 @@ public interface Types {
   record Position(X x, Y y) {
     public Position(Vector2 v) { this(new X((int) v.x()), new Y((int) v.y())); }
     public Vector2 toVector2() { return new Vector2(x.x(), y.y()); }
-  }
+    }
 
   record Dimension(Width w, Height h) {
     public Dimension(Vector2 v) { this(new Width((int) v.x()), new Height((int) v.y())); }
     public Vector2 toVector2() { return new Vector2(w.w(), h.h()); }
-  }
+    }
 
   record Color(Red r, Green g, Blue b, Alpha a) {
     public Color(Red r, Green g, Blue b) { this(r, g, b, new Alpha(255)); }
@@ -45,37 +45,39 @@ public interface Types {
       if (s.s() == 0) {
         int c = (int) (v.v() * 255);
         return new Color(new Red(c), new Green(c), new Blue(c));
-      }
+        }
+
       double hh = (h.h() - Math.floor(h.h())) * 6.0;
       double f = hh - Math.floor(hh);
       double p = v.v() * (1.0 - s.s());
       double q = v.v() * (1.0 - s.s() * f);
       double t = v.v() * (1.0 - s.s() * (1.0 - f));
+
       return switch ((int) hh) { case 0 -> new Color(new Red((int) (v.v() * 255 + 0.5)), new Green((int) (t * 255 + 0.5)), new Blue((int) (p * 255 + 0.5)));
         case 1 -> new Color(new Red((int) (q * 255 + 0.5)), new Green((int) (v.v() * 255 + 0.5)), new Blue((int) (p * 255 + 0.5))); 
         case 2 -> new Color(new Red((int) (p * 255 + 0.5)), new Green((int) (v.v() * 255 + 0.5)), new Blue((int) (t * 255 + 0.5)));
         case 3 -> new Color(new Red((int) (p * 255 + 0.5)), new Green((int) (q * 255 + 0.5)), new Blue((int) (v.v() * 255 + 0.5)));
         case 4 -> new Color(new Red((int) (t * 255 + 0.5)), new Green((int) (p * 255 + 0.5)), new Blue((int) (v.v() * 255 + 0.5)));
         default -> new Color(new Red((int) (v.v() * 255 + 0.5)), new Green((int) (p * 255 + 0.5)), new Blue((int) (q * 255 + 0.5)));
-      };
+        };
+      }
     }
-  }
 
   public record Lerpdouble(double start, double end, TimeSeconds duration, Easing easing) {
     public double at(TimeNanos elapsed) {
       float t = elapsed.nanos() / (duration.seconds() * 1_000_000_000f);
       t = Math.max(0f, Math.min(1f, t));
       return start + (end - start * easing.apply(t));
+      }
     }
-  }
 
   public record LerpVector2(Vector2 start, Vector2 end, TimeSeconds duration, Easing easing) {
     public Vector2 at(TimeNanos elapsed) {
       double x = new Lerpdouble(start.x(), end.x(), duration, easing).at(elapsed);
       double y = new Lerpdouble(start.y(), end.y(), duration, easing).at(elapsed);
       return new Vector2(x, y);
+      }
     }
-  }
 
   public record LerpVector3(Vector3 start, Vector3 end, TimeSeconds duration, Easing easing) {
     public Vector3 at(TimeNanos elapsed) {
@@ -83,8 +85,8 @@ public interface Types {
       double y = new Lerpdouble(start.y(), end.y(), duration, easing).at(elapsed);
       double z = new Lerpdouble(start.z(), end.z(), duration, easing).at(elapsed);
       return new Vector3(x, y, z);
+      }
     }
-  }
 
   record Vector2(double x, double y) {
     public Vector2(double s) { this(s, s); }
@@ -100,7 +102,7 @@ public interface Types {
     public double len() { return Math.sqrt(lenSq()); }
     public double dist(Vector2 o) { return sub(o).len(); }
     public double distSq(Vector2 o) { return sub(o).lenSq(); }
-  }
+    }
 
   public record Vector3(double x, double y, double z) {
     public Vector3(double s) { this(s, s, s); }
@@ -113,15 +115,15 @@ public interface Types {
     public double dot(Vector3 v) { return x * v.x + y * v.y + z * v.z; }
     public Vector3 cross(Vector3 v) {
       return new Vector3(
-          y * v.z - z * v.y,
-          z * v.x - x * v.z,
-          x * v.y - y * v.x
-          );
-    }
+        y * v.z - z * v.y,
+        z * v.x - x * v.z,
+        x * v.y - y * v.x
+        );
+      }
     public double lenSq() { return dot(this); }
     public double len() { return Math.sqrt(lenSq()); }
     public Vector3 normalize() { return div(len()); }
     public double dist(Vector3 o) { return sub(o).len(); }
     public double distSq(Vector3 o) { return sub(o).lenSq(); }
+    }
   }
-}

@@ -10,5 +10,4 @@ public interface MouseBuilder {
   MouseBuilder dragged(Consumer<Ctx.Mouse> action);
   MouseBuilder entered(Consumer<Ctx.Mouse> action);
   MouseBuilder exited(Consumer<Ctx.Mouse> action);
-}
-
+  }

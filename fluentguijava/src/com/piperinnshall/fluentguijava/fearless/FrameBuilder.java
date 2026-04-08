@@ -1,14 +1,14 @@
 package com.piperinnshall.fluentguijava.fearless;
 
+import com.piperinnshall.fluentguijava.fearless.Types.FluentGUIResult;
 import com.piperinnshall.fluentguijava.fearless.Types.Opacity;
 import com.piperinnshall.fluentguijava.fearless.Types.Position;
-import com.piperinnshall.fluentguijava.fearless.Types.FluentGUIResult;
 
 public interface FrameBuilder {
   FluentGUIResult result();
   FrameBuilder location(Position location);
-  FrameBuilder undecorated(Opacity opacity);
+  FrameBuilder opacity(Opacity opacity);
   FrameBuilder flow(Scope<PanelBuilder.Flow> scope);
   FrameBuilder border(Scope<PanelBuilder.Border> scope);
   FrameBuilder onKey(Scope<KeyBuilder> scope);
-}
+  }

@@ -13,16 +13,15 @@ public interface Ctx {
 
   interface Mouse extends Ctx {
     Position mousePosition();
-  }
-
+    }
   interface Key extends Ctx {
     KeyStroke keyStroke();
-  }
+    }
 
   interface Graphics extends Ctx {
     Graphics rect(Position position, Dimension dimension);
     Graphics oval(Position position, Dimension dimension);
     Graphics line(Position from, Position to);
     Graphics color(Color color);
+    }
   }
-}

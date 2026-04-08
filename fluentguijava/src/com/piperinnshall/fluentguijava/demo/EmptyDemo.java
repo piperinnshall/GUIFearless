@@ -6,5 +6,5 @@ import com.piperinnshall.fluentguijava.fearless.Types.*;
 public class EmptyDemo {
   public static void main() {
     new FluentGUI().run("", 60, _ -> {});
+    }
   }
-}

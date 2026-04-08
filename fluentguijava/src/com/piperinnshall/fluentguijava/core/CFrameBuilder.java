@@ -23,15 +23,15 @@ class CFrameBuilder implements FrameBuilder {
   private Types.Position location                               = null;
   private Scope<KeyBuilder> keyScope                            = Scope.nop();
   private List<BiConsumer<JComponent, SerialQueue>> components  = new ArrayList<>();
-  private boolean undecorated = false;
 
-  CFrame frame;
+  private CFrame frame;
 
-  public void start(
+  void start(
       String title,
       int fps,
       boolean maximized,
       boolean resizable,
+      boolean undecorated,
       CompletableFuture<RuntimeException> done
   ) {
     if (fps <= 0) {
@@ -105,8 +105,8 @@ class CFrameBuilder implements FrameBuilder {
   @Override public FrameBuilder location(Types.Position location) {
     this.location = location; return this;
     }
-  @Override public FrameBuilder undecorated(Types.Opacity opacity) {
-    this.undecorated = true; this.opacity = opacity; return this;
+  @Override public FrameBuilder opacity(Types.Opacity opacity) {
+    this.opacity = opacity; return this;
     }
   @Override public FrameBuilder onKey(Scope<KeyBuilder> scope) {
     this.keyScope = scope; return this;
