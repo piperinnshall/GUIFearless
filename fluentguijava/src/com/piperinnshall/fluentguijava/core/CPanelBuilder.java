@@ -18,13 +18,13 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 abstract class APanelBuilder<T extends APanelBuilder<T>> {
-  Types.Dimension dimension = new Types.Dimension(new Types.Width(100), new Types.Height(100));
-  Types.Color color = new Types.Color(new Types.Red(0), new Types.Green(0), new Types.Blue(0));
-  Scope<Ctx.Graphics> paint = Scope.nop();
-  Scope<MouseBuilder> mouseScope = Scope.nop();
-  List<BiConsumer<JComponent, SerialQueue>> components = new ArrayList<>();
+  private Types.Dimension dimension                               = new Types.Dimension(new Types.Width(100), new Types.Height(100));
+  private Types.Color color                                       = new Types.Color(new Types.Red(0), new Types.Green(0), new Types.Blue(0));
+  private Scope<Ctx.Graphics> paint                               = Scope.nop();
+  private Scope<MouseBuilder> mouseScope                          = Scope.nop();
+  protected List<BiConsumer<JComponent, SerialQueue>> components  = new ArrayList<>();
 
-  CFrame frame;
+  protected CFrame frame;
 
   abstract T self();
   abstract LayoutManager layout();
@@ -32,9 +32,9 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   CPanel buildPanel(CFrame frame, SerialQueue queue) {
     this.frame = frame;
     var panel = new CPanel(paint, frame);
+    panel.setLayout(layout());
     panel.setPreferredSize(Awt.dimension(dimension));
     panel.setBackground(Awt.color(color));
-    panel.setLayout(layout());
     mouseScope.run(new CMouseBuilder(panel));
     components.forEach(r -> r.accept(panel, queue));
     return panel;
@@ -54,8 +54,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
     }
 
   private T add(BiConsumer<JComponent, SerialQueue> component) {
-    components.add(component);
-    return self();
+    components.add(component); return self();
     }
 
   public T flow(Scope<PanelBuilder.Flow> scope) {
@@ -94,22 +93,22 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
 class CPanelBuilderFlow extends APanelBuilder<CPanelBuilderFlow> 
   implements PanelBuilder.Flow {
 
-  @Override LayoutManager layout() {
-    return new FlowLayout();
-    }
-  @Override CPanelBuilderFlow self() {
+  @Override protected CPanelBuilderFlow self() {
     return this;
+    }
+  @Override protected LayoutManager layout() {
+    return new FlowLayout();
     }
   }
 
 class CPanelBuilderBorder extends APanelBuilder<CPanelBuilderBorder>
     implements PanelBuilder.Border {
 
-  @Override LayoutManager layout() {
-    return new BorderLayout();
-    }
-  @Override CPanelBuilderBorder self() {
+  @Override protected CPanelBuilderBorder self() {
     return this;
+    }
+  @Override protected LayoutManager layout() {
+    return new BorderLayout();
     }
 
   private PanelBuilder.Border add(String constraint, Scope<PanelBuilder.Flow> scope) {
@@ -117,8 +116,7 @@ class CPanelBuilderBorder extends APanelBuilder<CPanelBuilderBorder>
       var pb = new CPanelBuilderFlow();
       scope.run(pb);
       parent.add(pb.buildPanel(frame, queue), constraint);
-      });
-    return self();
+      }); return self();
     }
 
   @Override public PanelBuilder.Border north(Scope<PanelBuilder.Flow> scope) {
