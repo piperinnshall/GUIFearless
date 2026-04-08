@@ -77,7 +77,8 @@ record CMouseBuilder(CPanel panel) implements MouseBuilder {
   private Ctx.Mouse ctx(MouseEvent e) {
     return new CMouseCtx(
       panel.frame().elapsed(),
-      new Types.Position(new Types.X(e.getX()), new Types.Y(e.getY())),
+      new Types.X(e.getX()), 
+      new Types.Y(e.getY()),
       panel.frame().screenSize(),
       panel.panelSize()
       );
@@ -145,15 +146,11 @@ record CGraphicsCtx(
     Graphics2D g2d,
     Types.TimeNanos elapsed,
     Types.Dimension screenSize,
-    Types.Dimension panelSize
+    Types.Dimension panelSize,
+    Types.X currentX,
+    Types.Y currentY
 ) implements Ctx.Graphics {
 
-  private static int x(Types.Position x) {
-    return x.x().x();
-    }
-  private static int y(Types.Position y) {
-    return y.y().y();
-    }
   private static int w(Types.Dimension w) {
     return w.w().w();
     }
@@ -161,23 +158,27 @@ record CGraphicsCtx(
     return h.h().h();
     }
 
-  @Override public Ctx.Graphics rect(Types.Position pos, Types.Dimension dim) {
-    g2d.fillRect(x(pos), y(pos), w(dim), h(dim)); return this;
-    }
-  @Override public Ctx.Graphics oval(Types.Position pos, Types.Dimension dim) {
-    g2d.fillOval(x(pos), y(pos), w(dim), h(dim)); return this;
-    }
-  @Override public Ctx.Graphics line(Types.Position from, Types.Position to) {
-    g2d.drawLine(x(from), y(from), x(to), y(to)); return this;
-    }
   @Override public Ctx.Graphics color(Types.Color color) {
     g2d.setColor(Awt.color(color)); return this;
+    }
+  @Override public Ctx.Graphics position(Types.X x, Types.Y y) {
+    return new CGraphicsCtx(g2d, elapsed, screenSize, panelSize, x, y); 
+    }
+  @Override public Ctx.Graphics line(Types.X x, Types.Y y) {
+    g2d.drawLine(currentX.x(), currentY.y(), x.x(), y.y()); return this;
+    }
+  @Override public Ctx.Graphics rect(Types.Dimension dim) {
+    g2d.fillRect(currentX.x(), currentY.y(), w(dim), h(dim)); return this;
+    }
+  @Override public Ctx.Graphics oval(Types.Dimension dim) {
+    g2d.fillOval(currentX.x(), currentY.y(), w(dim), h(dim)); return this;
     }
   }
 
 record CMouseCtx(
     Types.TimeNanos elapsed,
-    Types.Position mousePosition,
+    Types.X mouseX,
+    Types.Y mouseY,
     Types.Dimension screenSize,
     Types.Dimension panelSize
 ) implements Ctx.Mouse {}
@@ -255,8 +256,10 @@ class CPanel extends JPanel {
       (Graphics2D) g, 
       frame.elapsed(),
       frame.screenSize(), 
-      panelSize())
-      );
+      panelSize(),
+      new Types.X(0),
+      new Types.Y(0)
+      ));
     }
   }
 

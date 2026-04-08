@@ -3,7 +3,8 @@ package com.piperinnshall.fluentguijava.fearless;
 import com.piperinnshall.fluentguijava.fearless.Types.Color;
 import com.piperinnshall.fluentguijava.fearless.Types.Dimension;
 import com.piperinnshall.fluentguijava.fearless.Types.KeyStroke;
-import com.piperinnshall.fluentguijava.fearless.Types.Position;
+import com.piperinnshall.fluentguijava.fearless.Types.X;
+import com.piperinnshall.fluentguijava.fearless.Types.Y;
 import com.piperinnshall.fluentguijava.fearless.Types.TimeNanos;
 
 public interface Ctx {
@@ -12,16 +13,18 @@ public interface Ctx {
   Dimension panelSize();
 
   interface Mouse extends Ctx {
-    Position mousePosition();
+    X mouseX();
+    Y mouseY();
     }
   interface Key extends Ctx {
     KeyStroke keyStroke();
     }
 
   interface Graphics extends Ctx {
-    Graphics rect(Position position, Dimension dimension);
-    Graphics oval(Position position, Dimension dimension);
-    Graphics line(Position from, Position to);
     Graphics color(Color color);
+    Graphics position(X x, Y y);
+    Graphics line(X x, Y y);
+    Graphics rect(Dimension dimension);
+    Graphics oval(Dimension dimension);
     }
   }

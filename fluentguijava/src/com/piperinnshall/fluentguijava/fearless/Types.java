@@ -27,11 +27,6 @@ public interface Types {
   record TimeNanos(long nanos){}
   record TimeSeconds(long seconds){}
 
-  record Position(X x, Y y) {
-    public Position(Vector2 v) { this(new X((int) v.x()), new Y((int) v.y())); }
-    public Vector2 toVector2() { return new Vector2(x.x(), y.y()); }
-    }
-
   record Dimension(Width w, Height h) {
     public Dimension(Vector2 v) { this(new Width((int) v.x()), new Height((int) v.y())); }
     public Vector2 toVector2() { return new Vector2(w.w(), h.h()); }

@@ -50,16 +50,25 @@ public class ShapeDemo {
           )
         .paint(ctx -> {
           var s = ctx.panelSize().toVector2();
+          int rectX = (int) (s.x() * 0.10);
+          int rectY = (int) (s.y() * 0.10);
+          Dimension rectDim = new Dimension(s.mul(0.25));
+          int ovalX = (int) (s.x() * 0.40);
+          int ovalY = (int) (s.y() * 0.40);
+          Dimension ovalDim = new Dimension(s.mul(0.20));
+          int lineYPos = (int) (s.y() * lineY);
+          int lineXEnd = (int) (s.x() * 0.90);
+
           ctx.color(rectColor)
-            .rect(new Position(s.mul(0.10)), new Dimension(s.mul(0.25)))
-            .color(ovalColor)
-            .oval(new Position(s.mul(0.40)), new Dimension(s.mul(0.20)))
-            .color(lineColor)
-            .line(
-              new Position(new X((int) (s.x() * 0.10)), new Y((int) (s.y() * lineY))),
-              new Position(new X((int) (s.x() * 0.90)), new Y((int) (s.y() * lineY)))
-              );
-          })
+           .position(new X(rectX), new Y(rectY))
+           .rect(rectDim)
+           .color(ovalColor)
+           .position(new X(ovalX), new Y(ovalY))
+           .oval(ovalDim)
+           .color(lineColor)
+           .position(new X(rectX), new Y(lineYPos))
+           .line(new X(lineXEnd), new Y(lineYPos));
+          });
         )
       );
 

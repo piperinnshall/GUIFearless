@@ -20,7 +20,8 @@ class CFrameBuilder implements FrameBuilder {
   private Types.FluentGUIResult result    = new Types.FluentGUIResult.Unknown();
   private Types.Opacity opacity           = new Types.Opacity(1);
   private Types.Dimension screenSize      = resolveScreenSize();
-  private Types.Position location         = null;
+  private Types.X locationX               = null;
+  private Types.Y locationY               = null;
   private Scope<KeyBuilder> keyScope      = Scope.nop();
   private List<FrameComponent> components = new ArrayList<>();
 
@@ -66,8 +67,8 @@ class CFrameBuilder implements FrameBuilder {
       maximize(o.f, screenSize);
       }
 
-    if (location != null) { 
-      o.f.setLocation(Awt.point(location)); 
+    if (locationX != null && locationY != null) { 
+      o.f.setLocation(Awt.point(locationX, locationY)); 
       } 
     else { 
       o.f.setLocationRelativeTo(null); 
@@ -103,8 +104,8 @@ class CFrameBuilder implements FrameBuilder {
     frame.setLocation(0, 0);
     }
 
-  @Override public FrameBuilder location(Types.Position location) {
-    this.location = location; return this;
+  @Override public FrameBuilder location(Types.X x, Types.Y y) {
+    this.locationX = x; this.locationY = y; return this;
     }
   @Override public FrameBuilder opacity(Types.Opacity opacity) {
     this.opacity = opacity; return this;
