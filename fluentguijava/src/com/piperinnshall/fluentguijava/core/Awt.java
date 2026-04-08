@@ -15,4 +15,4 @@ interface Awt {
   static Color color(Types.Color c) {
     return new Color(c.r().r(), c.g().g(), c.b().b(), c.a().a());
     }
-}
+  }

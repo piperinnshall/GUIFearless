@@ -1,6 +1,7 @@
 package com.piperinnshall.fluentguijava.core;
 
 import com.piperinnshall.fluentguijava.fearless.Ctx;
+import com.piperinnshall.fluentguijava.fearless.MouseBuilder;
 import com.piperinnshall.fluentguijava.fearless.PanelBuilder;
 import com.piperinnshall.fluentguijava.fearless.Scope;
 import com.piperinnshall.fluentguijava.fearless.Slot;
@@ -17,23 +18,22 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 abstract class APanelBuilder<T extends APanelBuilder<T>> {
-  private Types.Dimension dimension                               = new Types.Dimension(new Types.Width(100), new Types.Height(100));
-  private Types.Color color                                       = new Types.Color(new Types.Red(0), new Types.Green(0), new Types.Blue(0));
-  private Scope<Ctx.Graphics> paint                               = Scope.nop();
-  protected List<BiConsumer<JComponent, SerialQueue>> components  = new ArrayList<>();
-
-  protected CFrame frame;
+  private Types.Dimension dimension         = new Types.Dimension(new Types.Width(100), new Types.Height(100));
+  private Types.Color color                 = new Types.Color(new Types.Red(0), new Types.Green(0), new Types.Blue(0));
+  private Scope<Ctx.Graphics> paint         = Scope.nop();
+  private Scope<MouseBuilder> mouseScope    = Scope.nop();
+  protected List<FrameComponent> components = new ArrayList<>();
 
   abstract T self();
   abstract LayoutManager layout();
 
   CPanel buildPanel(CFrame frame, SerialQueue queue) {
-    this.frame = frame;
     var panel = new CPanel(paint, frame);
     panel.setLayout(layout());
     panel.setPreferredSize(Awt.dimension(dimension));
     panel.setBackground(Awt.color(color));
-    components.forEach(r -> r.accept(panel, queue));
+    mouseScope.run(new CMouseBuilder(panel));
+    components.forEach(r -> r.accept(frame, panel, queue));
     return panel;
     }
 
@@ -46,27 +46,29 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
   public T paint(Scope<Ctx.Graphics> scope) {
     this.paint = scope; return self();
     }
-
-  private T add(BiConsumer<JComponent, SerialQueue> component) {
+  private T add(FrameComponent component) {
     components.add(component); return self();
+    }
+  public T onMouse(Scope<MouseBuilder> scope) {
+    this.mouseScope = scope; return self();
     }
 
   public T flow(Scope<PanelBuilder.Flow> scope) {
-    return add((parent, queue) -> {
+    return add((frame, parent, queue) -> {
       var pb = new CPanelBuilderFlow();
       scope.run(pb);
       parent.add(pb.buildPanel(frame, queue));
       }); 
     }
   public T border(Scope<PanelBuilder.Border> scope) {
-    return add((parent, queue) -> {
+    return add((frame, parent, queue) -> {
       var pb = new CPanelBuilderBorder();
       scope.run(pb);
       parent.add(pb.buildPanel(frame, queue));
       });
     }
   public T button(String text, Runnable r, Slot<Swing.Button> s) {
-    return add((parent, queue) -> {
+    return add((_, parent, queue) -> {
       var jb = new JButton(text);
       jb.addActionListener(_ -> queue.submit(r));
       jb.setOpaque(true);
@@ -75,7 +77,7 @@ abstract class APanelBuilder<T extends APanelBuilder<T>> {
       });
     }
   public T label(String text, Slot<Swing.Label> s) {
-    return add((parent, _) -> {
+    return add((_, parent, _) -> {
       var jl = new JLabel(text);
       jl.setOpaque(true);
       s.fill(new CLabel(jl));
@@ -106,7 +108,7 @@ class CPanelBuilderBorder extends APanelBuilder<CPanelBuilderBorder>
     }
 
   private PanelBuilder.Border add(String constraint, Scope<PanelBuilder.Flow> scope) {
-    components.add((parent, queue) -> {
+    components.add((frame, parent, queue) -> {
       var pb = new CPanelBuilderFlow();
       scope.run(pb);
       parent.add(pb.buildPanel(frame, queue), constraint);

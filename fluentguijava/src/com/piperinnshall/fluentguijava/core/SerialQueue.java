@@ -5,7 +5,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 
 record SerialQueue(BlockingQueue<Runnable> q, Thread t) {
-
   public SerialQueue(Consumer<RuntimeException> onError) {
     this(new LinkedBlockingQueue<>(), onError);
     }

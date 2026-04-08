@@ -52,7 +52,8 @@ queue of event?
 - [ ] we will need a family of gui operations: exit resetFocus
 - [ ] any text area will have .focus to aqcuire focus
 
-- [ ] What happen when you click only multiple contained components
+- [x] What happen when you click on multiple contained components
+    - Top one registers the click.
 - [ ] .color.pos.rect
 - [ ] real chance to kill the position type
 - [ ] expose x and y in methods
@@ -131,3 +132,4 @@ vertically split
 `drawSquare(0,0,10,10)`
 clicking on the square returns: 50, 0.
 So mouse needs to be per panel, while key presses are global.
+Only top component registers mouse clicks.

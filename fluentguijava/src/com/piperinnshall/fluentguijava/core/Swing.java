@@ -6,6 +6,7 @@ import com.piperinnshall.fluentguijava.fearless.MouseBuilder;
 import com.piperinnshall.fluentguijava.fearless.Scope;
 import com.piperinnshall.fluentguijava.fearless.Swing;
 import com.piperinnshall.fluentguijava.fearless.Types;
+import java.awt.AWTEvent;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -34,6 +35,13 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
       Supplier<Types.KeyStroke> stroke,
       Consumer<Ctx.Key> action
   ) {
+    var current = new Object() {
+      KeyStroke value = KeyStroke.getKeyStroke(stroke.get().k());
+      };
+
+    var inputMap = panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+    inputMap.put(current.value, actionKey);
+
     panel.getActionMap().put(actionKey, new AbstractAction() {
       public void actionPerformed(ActionEvent e) {
         action.accept(new CKeyCtx(
@@ -44,13 +52,6 @@ record CKeyBuilder(CPanel panel) implements KeyBuilder {
           );
         }
       });
-
-    var current = new Object() {
-      KeyStroke value = KeyStroke.getKeyStroke(stroke.get().k());
-      };
-
-    var inputMap = panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-    inputMap.put(current.value, actionKey);
 
     panel.frame().addTickHook(() -> {
       var desired = KeyStroke.getKeyStroke(stroke.get().k());
@@ -251,7 +252,10 @@ class CPanel extends JPanel {
   @Override public void paintComponent(Graphics g) {
     super.paintComponent(g);
     paintable.run(new CGraphicsCtx(
-      (Graphics2D) g, frame.elapsed(), frame.screenSize(), panelSize())
+      (Graphics2D) g, 
+      frame.elapsed(),
+      frame.screenSize(), 
+      panelSize())
       );
     }
   }

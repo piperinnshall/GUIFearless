@@ -8,13 +8,13 @@ import javax.swing.SwingUtilities;
 
 public class FluentGUI {
   public FluentGUIResult run(
-    String title,
-    int fps,
-    boolean maximized,
-    boolean resizable,
-    boolean undecorated,
-    Scope<FrameBuilder> frame
-) {
+      String title,
+      int fps,
+      boolean maximized,
+      boolean resizable,
+      boolean undecorated,
+      Scope<FrameBuilder> frame
+  ) {
     var fb = new CFrameBuilder();
     frame.run(fb);
     return runGUI(title, fps, maximized, resizable, undecorated, fb);
