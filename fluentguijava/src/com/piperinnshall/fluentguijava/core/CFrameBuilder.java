@@ -17,29 +17,27 @@ import javax.swing.Timer;
 
 class CFrameBuilder implements FrameBuilder {
   private final Types.TimeNanos startTime = new Types.TimeNanos(System.nanoTime());
-  private Types.FluentGUIResult result    = new Types.FluentGUIResult.Unknown();
+  private Types.FPS fps                   = new Types.FPS(60);
   private Types.Opacity opacity           = new Types.Opacity(1);
+  private Types.FluentGUIResult result    = new Types.FluentGUIResult.Unknown();
   private Types.Dimension screenSize      = resolveScreenSize();
   private Types.X locationX               = null;
   private Types.Y locationY               = null;
+  private String title                    = "";
+  private boolean maximized               = false;             
+  private boolean resizable               = false;
+  private boolean undecorated             = false;
   private Scope<KeyBuilder> keyScope      = Scope.nop();
   private List<FrameComponent> components = new ArrayList<>();
 
-  void start(
-      String title,
-      int fps,
-      boolean maximized,
-      boolean resizable,
-      boolean undecorated,
-      CompletableFuture<RuntimeException> done
-  ) {
-    if (fps <= 0) {
+  void start(CompletableFuture<RuntimeException> done) {
+    if (fps.fps() <= 0) {
       throw new IllegalArgumentException("fps must be > 0, got: " + fps);
       }
 
     var o = new Object() {
       Timer t = new Timer(
-        Math.round(1000.0f / fps),
+        Math.round(1000.0f / fps.fps()),
         _ -> this.f.tick(new Types.TimeNanos(System.nanoTime() - startTime.nanos()))
         );
 
@@ -104,14 +102,26 @@ class CFrameBuilder implements FrameBuilder {
     frame.setLocation(0, 0);
     }
 
+  @Override public FrameBuilder maximized() {
+    this.maximized = true; return this; 
+    }
+  @Override public FrameBuilder resizable() {
+    this.resizable = true; return this; 
+    }
+  @Override public FrameBuilder undecorated(Types.Opacity opacity) {
+    this.undecorated = true; this.opacity = opacity; return this;
+    }
   @Override public FrameBuilder location(Types.X x, Types.Y y) {
     this.locationX = x; this.locationY = y; return this;
     }
-  @Override public FrameBuilder opacity(Types.Opacity opacity) {
-    this.opacity = opacity; return this;
-    }
   @Override public FrameBuilder onKey(Scope<KeyBuilder> scope) {
     this.keyScope = scope; return this;
+    }
+  @Override public FrameBuilder title(String title) {
+    this.title = title; return this; 
+    }
+  @Override public FrameBuilder fps(Types.FPS fps) {
+    this.fps = fps; return this; 
     }
 
   private FrameBuilder add(FrameComponent component) {

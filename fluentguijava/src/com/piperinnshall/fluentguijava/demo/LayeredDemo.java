@@ -33,7 +33,7 @@ public class LayeredDemo {
       //     )
       //   )
     ;
-    var result = new FluentGUI().run("", 60, gui -> gui.flow(flow1));
+    var result = new FluentGUI().run(gui -> gui.flow(flow1));
 
     System.out.println(switch(result) {
       case FluentGUIResult.Unknown() -> "Unknown";

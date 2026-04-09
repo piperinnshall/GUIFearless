@@ -7,35 +7,15 @@ import java.util.concurrent.CompletableFuture;
 import javax.swing.SwingUtilities;
 
 public class FluentGUI {
-  public FluentGUIResult run(
-      String title,
-      int fps,
-      boolean maximized,
-      boolean resizable,
-      boolean undecorated,
-      Scope<FrameBuilder> frame
-  ) {
+  public FluentGUIResult run(Scope<FrameBuilder> frame) {
     var fb = new CFrameBuilder();
     frame.run(fb);
-    return runGUI(title, fps, maximized, resizable, undecorated, fb);
+    return runGUI(fb);
     }
 
-  public FluentGUIResult run(String title, int fps, Scope<FrameBuilder> frame) {
-    var fb = new CFrameBuilder();
-    frame.run(fb);
-    return runGUI(title, fps, false, false, false, fb);
-    }
-
-  private FluentGUIResult runGUI(
-      String title,
-      int fps,
-      boolean maximized,
-      boolean resizable,
-      boolean undecorated,
-      CFrameBuilder fb
-  ) {
+  private FluentGUIResult runGUI(CFrameBuilder fb) {
     var done = new CompletableFuture<RuntimeException>();
-    SwingUtilities.invokeLater(() -> fb.start(title, fps, maximized, resizable, undecorated, done));
+    SwingUtilities.invokeLater(() -> fb.start(done));
     done.join();
     return fb.result();
     }

@@ -26,7 +26,12 @@ public class ShapeDemo {
     }
 
   private void run() {
-    FluentGUIResult result = new FluentGUI().run("Shape Demo", 60, false, true, false, frame -> frame
+    FluentGUIResult result = new FluentGUI().run(frame -> frame
+      .title("Shape Demo")
+      .fps(new FPS(60))
+      .resizable()
+      .maximized()
+      .undecorated(new Opacity(0.8f))
       .onKey(k -> k
         .pressed(() -> new KeyStroke("R"), _ -> updateRectColor(new Color(new Red(255), new Green(0), new Blue(0))))
         .pressed(() -> new KeyStroke("G"), _ -> updateRectColor(new Color(new Red(0), new Green(255), new Blue(0))))

@@ -7,6 +7,8 @@ public interface Types {
     record Crashed(RuntimeException cause) implements FluentGUIResult {}
     }
 
+  record FPS(int fps) { public FPS { if (fps < 0) throw new IllegalArgumentException("FPS must be non-negative: " + fps); } }
+
   record X(int x) {}
   record Y(int y) {}
 

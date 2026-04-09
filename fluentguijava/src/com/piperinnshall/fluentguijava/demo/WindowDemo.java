@@ -5,7 +5,9 @@ import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 public class WindowDemo {
   public static void main() {
-    new FluentGUI().run("Window Demo", 60, frame -> frame
+    new FluentGUI().run(frame -> frame
+      .title("Window Demo")
+      .fps(new FPS(60))
       .onKey(k->k.pressed(() -> new KeyStroke("A"), ctx->System.out.println(ctx.elapsed())))
       .border(b -> b
         .size(new Dimension(new Width(601), new Height(400)))
