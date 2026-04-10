@@ -1,5 +1,7 @@
 MODULE = com.piperinnshall.fluentguijava
-MAIN   = com.piperinnshall.fluentguijava.demo.ShapeDemo
+# MAIN   = com.piperinnshall.fluentguijava.demo.Demo
+# MAIN   = com.piperinnshall.fluentguijava.demo.ShapeDemo
+MAIN   = com.piperinnshall.fluentguijava.demo.EmptyDemo
 SRC    = $(shell find fluentguijava/src -name '*.java')
 TEST   = $(shell find fluentguijava/test -name '*.java')
 OUT      = fluentguijava/out

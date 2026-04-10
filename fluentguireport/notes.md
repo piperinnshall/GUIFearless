@@ -117,7 +117,8 @@ queue of event?
 
 # DOCUMENTATION
 
-- Size and location override maximized
+- Size override by maximized
+- Location works with maximized
 - Not using java maximize, broken on MacOs
 - opacity requires undecorated
 - Every call replaces the last
