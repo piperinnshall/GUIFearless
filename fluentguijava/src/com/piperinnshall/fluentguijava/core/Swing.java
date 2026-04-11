@@ -287,14 +287,18 @@ record CLabel(JLabel l) implements Swing.Label {
     }
   @Override public void text(String text) {
     l.setText(text);
+    l.repaint();
     }
   @Override public void foreground(Types.Color c) {
     l.setForeground(Awt.color(c));
+    l.repaint();
     }
   @Override public void background(Types.Color c) {
     l.setBackground(Awt.color(c));
+    l.repaint();
     }
   @Override public void opaque(boolean opaque) {
     l.setOpaque(opaque);
+    l.repaint();
     }
   }

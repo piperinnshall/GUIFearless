@@ -5,18 +5,20 @@ import com.piperinnshall.fluentguijava.fearless.*;
 import com.piperinnshall.fluentguijava.fearless.Types.*;
 
 public class EmptyDemo {
-  public static void main() {
-    // new FluentGUI().run(_ -> {});
-    Slot<Swing.Button> btn = Slot.of();
-    var toggled = new boolean[]{false};
-
+  void run() {
+  Slot<Swing.Label> label = Slot.of();
     new FluentGUI().run(frame -> frame
       .flow(panel -> panel
-        .button("Off", () -> {
-            toggled[0] = !toggled[0];
-            btn.get().text(toggled[0] ? "On" : "Off");
-        }, btn)
-      )
-    );
+        .size(new Dimension(new Width(200), new Height(100)))
+        .label("Hello", label)
+        .paint(_-> {
+          label.get().opaque(true);
+          label.get().background(new Color(new Red(1), new Green(100), new Blue(1)));
+          })
+        )
+      );
     }
+  public static void main() {
+    new EmptyDemo().run();
   }
+}

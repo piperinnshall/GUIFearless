@@ -39,7 +39,7 @@ public class ShapeDemo {
         .pressed(() -> downKey, _ -> updateLineY(0.05f))
         )
       .flow(panel -> panel
-        .transparent()
+        // .transparent()
         .button("Crash", () -> { throw new RuntimeException("Explode"); }, Slot.of())
         .button("Keys: Arrows", this::toggleKeys, toggleBtn)
         .label("Hello World!", Slot.of())
